@@ -8,8 +8,8 @@ public interface UserService {
 //    User createUser(User user);
 //    User updateUser(User user);
 //    void deleteUserById(Long id);
-//    List<User> getAllUsers();
-//    User getUserById(Long id);
+    List<User> getAllUsers();
+    String getCurrentUser();
 
     User registerUser(User user);
     String loginUser(User user);

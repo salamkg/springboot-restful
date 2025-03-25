@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
+//    Optional<User> findByBoardId(Long boardId);
 
     //  Найти всех пользователей, которые участвуют в проектах, в которых есть хотя бы одна задача с
     //  количеством комментариев больше 10 и с определенным статусом (например, "IN_PROGRESS")

@@ -36,6 +36,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findNotCompletedProjects(Long userId);
 
     // Найти все проекты, в которых участвуют хотя бы два пользователя, и в которых задачи старше определенной даты (например, старше 3 месяцев).
+    @Query("select p from Project p")
+    List<Project> findAllProjectsUnder3Months();
 
     // Найти проекты, в которых задачи выполняются позднее, чем их изначальная дата завершения (например, если dueDate задачи больше, чем originalDueDate)
 

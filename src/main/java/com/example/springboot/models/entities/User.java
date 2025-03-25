@@ -1,6 +1,5 @@
 package com.example.springboot.models.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -47,12 +46,14 @@ public class User {
     private Set<Role> roles;
 
     @ManyToMany
-//    @JsonBackReference
     @JoinTable(
             name = "user_project", // промежуточная таблица
             joinColumns = @JoinColumn(name = "user_id"), // Внешний ключ для пользователя
             inverseJoinColumns = @JoinColumn(name = "project_id")) // Внешний ключ для проекта
     private Set<Project> projects = new HashSet<>();
+
+    @ManyToMany(mappedBy = "users")
+    private Set<Board> boards = new HashSet<>();
 
     @ManyToMany(mappedBy = "assignedUsers")
     private List<Task> assignedTasks = new ArrayList<>();

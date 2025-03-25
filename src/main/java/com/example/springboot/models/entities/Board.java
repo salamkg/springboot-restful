@@ -9,6 +9,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.springframework.core.annotation.Order;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,4 +28,11 @@ public class Board {
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private List<TaskList> taskLists = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_board",
+            joinColumns = @JoinColumn(name = "board_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> users = new ArrayList<>();
 }

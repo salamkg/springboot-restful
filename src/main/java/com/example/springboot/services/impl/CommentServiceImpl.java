@@ -7,10 +7,10 @@ import com.example.springboot.repositories.CommentRepository;
 import com.example.springboot.repositories.TaskRepository;
 import com.example.springboot.repositories.UserRepository;
 import com.example.springboot.services.CommentService;
-import com.example.springboot.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -25,17 +25,19 @@ public class CommentServiceImpl implements CommentService {
 
 
     @Override
-    public Comment addComment(Long taskId, Long userId, Comment text) {
-        System.out.println(text);
+    public String addComment(Long taskId, Long userId, Comment comment) {
+        System.out.println(comment);
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
-//        Comment comment = new Comment();
-        text.setTask(task);
-        text.setUser(user);
-//        comment.setText(text);
+        Comment newComment = new Comment();
+        newComment.setTask(task);
+        newComment.setUser(user);
+        newComment.setText(comment.getText());
+        newComment.setTimestamp(new Date());
+        commentRepository.save(newComment);
 
-        return commentRepository.save(text);
+        return "Comment successfully added!";
     }
 
     @Override

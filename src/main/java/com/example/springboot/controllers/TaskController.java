@@ -3,71 +3,63 @@ package com.example.springboot.controllers;
 import com.example.springboot.models.dto.TaskDto;
 import com.example.springboot.models.entities.Task;
 import com.example.springboot.services.TaskService;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/api/lists")
 public class TaskController {
 
-    private final TaskService taskService;
-
     @Autowired
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
-    }
+    private TaskService taskService;
 
-    // localhost:8080/tasks
-    @GetMapping()
+    @GetMapping("/tasks")
     public ResponseEntity<List<TaskDto>> getAllTasks() {
         List<TaskDto> allTasks = taskService.getAllTasks();
         return ResponseEntity.ok(allTasks);
     }
 
-    // localhost:8080/tasks/{id}
     @GetMapping(path = "/{id}")
     public ResponseEntity<TaskDto> getTaskById(@PathVariable Long id) {
         TaskDto taskDto = taskService.getTaskById(id);
         return ResponseEntity.ok(taskDto);
     }
 
-    // localhost:8080/api/tasks
-    @PostMapping()
-    public ResponseEntity<TaskDto> createTask(@RequestBody Task task/*@RequestParam(value = "file", required = false) MultipartFile file*/) {
+    @PostMapping("/{taskListId}/task/create")
+    public ResponseEntity<TaskDto> createTask(@RequestBody Task task,
+                                              @PathVariable Long taskListId) {
 
-        if (task.getTaskList() == null || task.getTaskList().getId() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        TaskDto newTask = taskService.createTask(task);
+        TaskDto newTask = taskService.createTask(task, taskListId, null);
         return ResponseEntity.ok(newTask);
     }
 
-    // localhost:8080/tasks/1
-    @PutMapping(path = "/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {
-        task.setId(id);
-        Task newTask = taskService.updateTask(task);
-        return ResponseEntity.ok(newTask);
+    @PutMapping(path = "/task/{taskId}/edit")
+    public ResponseEntity<TaskDto> updateTask(@PathVariable Long taskId, @RequestBody Task task) {
+        TaskDto editedTask = taskService.editTask(taskId, task);
+        return ResponseEntity.ok(editedTask);
     }
 
-    @DeleteMapping(path = "/{id}")
+    @DeleteMapping(path = "/tasks/{id}/remove")
+    @PreAuthorize("hasAnyAuthority('ADMIN')") // Only for ADMIN
     public ResponseEntity<Task> deleteTask(@PathVariable Long id) {
         taskService.deleteTaskById(id);
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping(path = "/tasks/remove")
+    @PreAuthorize("hasAnyAuthority('ADMIN')") // Only for ADMIN
+    public ResponseEntity<Task> deleteTasks(@RequestBody List<Long> ids) {
+        taskService.deleteTasksById(ids);
+        return ResponseEntity.noContent().build();
+    }
+
     // Edit Task Position
-    @PutMapping("/{taskId}/order")
+    @PutMapping("/tasks/{taskId}/order")
     public ResponseEntity<TaskDto> updateTaskPosition(@PathVariable Long taskId, @RequestParam(name = "newPosition") Integer newPosition) {
         taskService.updateTaskPosition(taskId, newPosition);
 

@@ -21,9 +21,9 @@ public class TaskList {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ColumnDefault("NEW")
-    @Enumerated(value = EnumType.STRING)
-    private TaskStatus name = TaskStatus.NEW;
+//    @ColumnDefault("NEW")
+//    @Enumerated(value = EnumType.STRING)
+    private String name;
 
     private String description;
 

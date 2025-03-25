@@ -1,37 +1,42 @@
-//package com.example.springboot.config;
-//
-//
-//import com.example.springboot.services.UserService;
-//import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-//import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-//import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.http.HttpMethod;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-//
-//@Configuration
-//@EnableWebSecurity
-//@AutoConfigureAfter(SecurityAutoConfiguration.class)
-//public class SecurityConfig extends SecurityFilterAutoConfiguration {
-//
-//    private final JwtFilter jwtFilter;
-//
-//    public SecurityConfig(JwtFilter jwtFilter) {
-//        this.jwtFilter = jwtFilter;
-//    }
-//
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-//                .authorizeRequests()
-//                .antMatchers("/public/**").permitAll()  // Public endpoints
-//                .anyRequest().authenticated()  // All other requests require authentication
-//                .and()
-//                .httpBasic();  // Use HTTP Basic authentication (optional)
-//    }
-//}
+package com.example.springboot.config;
+
+
+import com.example.springboot.models.entities.UserRole;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
+
+import static com.example.springboot.models.entities.UserRole.ADMIN;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity // for @PreAuthorize()
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/users/**", "v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/users/{id}/delete").hasAnyAuthority(ADMIN.getAuthority())
+                        .requestMatchers("/api/projects/recent").hasAnyAuthority(ADMIN.getAuthority())
+                        .requestMatchers("/admin/**").hasAnyAuthority(ADMIN.getAuthority())
+                        .anyRequest().authenticated())
+//                .httpBasic(Customizer.withDefaults());
+                        .formLogin(formLogin -> formLogin
+//                                .loginPage("/login")
+                                .defaultSuccessUrl("/api/users/all")
+                                .permitAll());
+
+        return http.build();
+    }
+
+}

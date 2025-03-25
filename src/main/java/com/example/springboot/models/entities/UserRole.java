@@ -1,5 +1,12 @@
 package com.example.springboot.models.entities;
 
-public enum UserRole {
-    ADMIN, USER
+import org.springframework.security.core.GrantedAuthority;
+
+public enum UserRole implements GrantedAuthority {
+    ADMIN, USER;
+
+    @Override
+    public String getAuthority() {
+        return name();
+    }
 }

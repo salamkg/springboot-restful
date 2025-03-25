@@ -1,10 +1,7 @@
 package com.example.springboot.models.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
@@ -18,6 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tasks")
+@Builder
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -51,10 +49,17 @@ public class Task {
     private Set<Comment> comments;
 
     @ManyToOne
+    @JoinColumn(name = "board_id")
+    private Board board;
+
+    @ManyToOne
     @JoinColumn(name = "task_list_id")
     private TaskList taskList;
 
     @ManyToMany
     @JoinTable(name = "task_users", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> assignedUsers = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "tasks")
+    private List<Tag> tags = new ArrayList<>();
 }

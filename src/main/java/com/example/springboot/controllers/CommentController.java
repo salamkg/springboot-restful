@@ -25,11 +25,9 @@ public class CommentController {
     private UserRepository userRepository;
 
     @PostMapping()
-    public ResponseEntity<Comment> addComment(@PathVariable Long taskId, @PathVariable Long userId, @RequestBody Comment text) {
+    public String addComment(@PathVariable Long taskId, @PathVariable Long userId, @RequestBody Comment text) {
 
-        Comment comment = commentService.addComment(taskId, userId, text);
-
-        return ResponseEntity.ok().body(comment);
+        return commentService.addComment(taskId, userId, text);
     }
 
     @GetMapping()

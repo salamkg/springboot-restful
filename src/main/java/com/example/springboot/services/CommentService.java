@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface CommentService {
 
-    Comment addComment(Long taskId, Long userId, Comment comment);
+    String addComment(Long taskId, Long userId, Comment comment);
     List<Comment> getTaskComments(Long taskId);
 }

@@ -3,10 +3,8 @@ package com.example.springboot.controllers;
 import com.example.springboot.models.dto.BoardDto;
 import com.example.springboot.models.dto.TaskListDto;
 import com.example.springboot.models.entities.Board;
-import com.example.springboot.models.entities.Task;
 import com.example.springboot.models.entities.TaskList;
 import com.example.springboot.services.BoardService;
-import com.example.springboot.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,28 +17,37 @@ import java.util.List;
 @RequestMapping("/api/boards")
 public class BoardController {
 
-    private final BoardService boardService;
+//    @Autowired
+    private BoardService boardService;
 
-    @Autowired
+//    @Autowired
     public BoardController(BoardService boardService) {
         this.boardService = boardService;
     }
 
+    // Get Boards
+    @GetMapping()
+    public ResponseEntity<List<BoardDto>> getAllBoards() {
+        List<BoardDto> boardDtos = boardService.getAllBoards();
+
+        return ResponseEntity.ok(boardDtos);
+    }
+
     // Create Board
     @PostMapping()
-    public ResponseEntity<BoardDto> createBoard(@RequestBody Board board) {
-        BoardDto boardDto = boardService.createBoard(board);
+    public ResponseEntity<BoardDto> createBoard(@RequestParam String username, @RequestBody Board board) {
+        BoardDto boardDto = boardService.createBoard(username, board);
 
         return new ResponseEntity<>(boardDto, HttpStatus.CREATED);
     }
 
     // Edit Board
-    @PutMapping("/{boardId}")
+    @PutMapping("/{boardId}/edit")
     public ResponseEntity<BoardDto> editBoard(@PathVariable Long boardId, @RequestBody Board board) {
         board.setId(boardId);
-        BoardDto boardDto = boardService.updateBoard(board);
+        BoardDto boardDto = boardService.updateBoard(boardId, board);
 
-        return new ResponseEntity<>(boardDto, HttpStatus.OK);
+        return ResponseEntity.ok(boardDto);
     }
 
     // Create List on Board
@@ -67,5 +74,10 @@ public class BoardController {
         boardService.updateTaskListPosition(boardId, listId, position);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/{boardId}/remove")
+    public void deleteBoard(@PathVariable Long boardId) {
+        boardService.deleteBoardById(boardId);
     }
 }

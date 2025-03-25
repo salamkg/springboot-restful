@@ -2,6 +2,7 @@ package com.example.springboot.models.dto;
 
 import com.example.springboot.models.entities.TaskStatus;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -11,8 +12,10 @@ import lombok.*;
 public class TaskDto {
 
     private Long id;
-    private String title;
+    private String name;
     private String description;
     private TaskStatus status;
     private CommentDto[] comments;
+    private TaskListDto taskListDto;
+    private MultipartFile files;
 }

@@ -1,15 +1,11 @@
 package com.example.springboot.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
+import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -17,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "changelog")
+@Builder
 public class ChangeLog {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,6 +25,7 @@ public class ChangeLog {
     private String action; // Тип изменения
     private String description;
     private String changedBy;
-    private LocalDateTime timestamp;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
+    private Date timestamp;
 
 }

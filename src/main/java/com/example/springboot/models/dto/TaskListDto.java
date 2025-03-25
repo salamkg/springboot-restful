@@ -10,7 +10,8 @@ import lombok.*;
 @Builder
 public class TaskListDto {
     private Long id;
-    private TaskStatus name;
+    private String name;
     private String description;
     private Integer position;
+    private BoardDto boardDto;
 }

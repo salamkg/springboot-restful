@@ -3,6 +3,7 @@ package com.example.springboot.services.impl;
 import com.example.springboot.models.dto.CommentDto;
 import com.example.springboot.models.dto.ProjectDto;
 import com.example.springboot.models.dto.TaskDto;
+import com.example.springboot.models.dto.TaskListDto;
 import com.example.springboot.models.entities.Comment;
 import com.example.springboot.models.entities.Project;
 import com.example.springboot.models.entities.Task;
@@ -32,48 +33,52 @@ public class ProjectServiceImpl implements ProjectService {
     public List<ProjectDto> getProjectsByUserId(Long userId) {
         List<Project> projects = projectRepository.findProjectsByUserId(userId);
 
-        return projects.stream()
-                .map(project -> new ProjectDto(
-                        project.getId(),
-                        project.getTitle(),
-                        project.getDescription(),
-                        project.getTasks().stream()
-                                .map(task -> new TaskDto(
-                                        task.getId(),
-                                        task.getName(),
-                                        task.getDescription(),
-                                        task.getStatus(),
-                                        task.getComments().stream()
-                                                .map(comment -> new CommentDto(
-                                                        comment.getText()
-                                                )).toArray(CommentDto[]::new)
-                                )).toArray(TaskDto[]::new)
-                ))
-                .collect(Collectors.toList());
+//        return projects.stream()
+//                .map(project -> new ProjectDto(
+//                        project.getId(),
+//                        project.getTitle(),
+//                        project.getDescription(),
+//                        project.getTasks().stream()
+//                                .map(task -> new TaskDto(
+//                                        task.getId(),
+//                                        task.getName(),
+//                                        task.getDescription(),
+//                                        task.getStatus(),
+//                                        task.getComments().stream()
+//                                                .map(comment -> new CommentDto(
+//                                                        comment.getText()
+//                                                )).toArray(CommentDto[]::new),
+//                                        TaskListDto.builder().build()
+//                                )).toArray(TaskDto[]::new)
+//                ))
+//                .collect(Collectors.toList());
+        return null;
     }
 
     @Override
     public List<ProjectDto> getNotCompletedProjectsByUserId(Long userId) {
         List<Project> projects = projectRepository.findNotCompletedProjects(userId);
 
-        return projects.stream()
-                .map(project -> new ProjectDto(
-                        project.getId(),
-                        project.getTitle(),
-                        project.getDescription(),
-                        project.getTasks().stream()
-                                .map(task -> new TaskDto(
-                                        task.getId(),
-                                        task.getName(),
-                                        task.getDescription(),
-                                        task.getStatus(),
-                                        task.getComments().stream()
-                                                .map(comment -> new CommentDto(
-                                                        comment.getText()
-                                                )).toArray(CommentDto[]::new)
-                                )).toArray(TaskDto[]::new)
-                ))
-                .collect(Collectors.toList());
+//        return projects.stream()
+//                .map(project -> new ProjectDto(
+//                        project.getId(),
+//                        project.getTitle(),
+//                        project.getDescription(),
+//                        project.getTasks().stream()
+//                                .map(task -> new TaskDto(
+//                                        task.getId(),
+//                                        task.getName(),
+//                                        task.getDescription(),
+//                                        task.getStatus(),
+//                                        task.getComments().stream()
+//                                                .map(comment -> new CommentDto(
+//                                                        comment.getText()
+//                                                )).toArray(CommentDto[]::new),
+//                                        task.getTaskList()
+//                                )).toArray(TaskDto[]::new)
+//                ))
+//                .collect(Collectors.toList());
+        return new ArrayList<>();
     }
 
     @Override

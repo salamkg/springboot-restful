@@ -12,8 +12,8 @@ import java.util.List;
 @Service
 public interface BoardService {
 
-    BoardDto createBoard(Board board);
-    BoardDto updateBoard(Board board);
+    BoardDto createBoard(String username, Board board);
+    BoardDto updateBoard(Long boardId, Board board);
     TaskListDto createTaskListOnBoard(Long boardId, TaskList taskList);
     TaskListDto updateTaskListOnBoard(TaskList taskList);
     void updateTaskListPosition(Long boardId, Long taskListId, Integer position);
