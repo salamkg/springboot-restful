@@ -4,23 +4,17 @@ import com.example.springboot.mappers.BoardRequestMapper;
 import com.example.springboot.mappers.TaskListRequestMapper;
 import com.example.springboot.models.dto.BoardDto;
 import com.example.springboot.models.dto.TaskListDto;
-import com.example.springboot.models.dto.UserDto;
 import com.example.springboot.models.entities.*;
 import com.example.springboot.repositories.BoardRepository;
 import com.example.springboot.repositories.ChangeLogRepository;
 import com.example.springboot.repositories.TaskListRepository;
 import com.example.springboot.repositories.UserRepository;
-import com.example.springboot.security.CustomUserDetails;
 import com.example.springboot.services.BoardService;
 import com.example.springboot.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -53,7 +47,8 @@ public class BoardServiceImpl implements BoardService {
 
         //Logging
         ChangeLog changeLog = new ChangeLog();
-        changeLog.setBoardId(newBoard.getId());
+        changeLog.setEntityId(newBoard.getId());
+        changeLog.setEntity("Board");
         changeLog.setAction("create");
         changeLog.setChangedBy(user.getFirstName());
         changeLog.setTimestamp(new Date());
@@ -82,7 +77,8 @@ public class BoardServiceImpl implements BoardService {
 
         //Logging
         ChangeLog changeLog = new ChangeLog();
-        changeLog.setBoardId(board.getId());
+        changeLog.setEntityId(board.getId());
+        changeLog.setEntity("Board");
         changeLog.setAction("edit");
         for (User user: users) {
             Optional<User> optionalUser = userRepository.findByUsername(user.getUsername());
@@ -117,7 +113,8 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new RuntimeException(String.format("Board with id %d does not exist", boardId)));
 
         ChangeLog changeLog = new ChangeLog();
-        changeLog.setBoardId(boardId);
+        changeLog.setEntityId(boardId);
+        changeLog.setEntity("Board");
         changeLog.setAction("delete");
 
         //Get Board users to set username
@@ -211,6 +208,9 @@ public class BoardServiceImpl implements BoardService {
                 taskList.setName(String.valueOf(TaskStatus.PENDING));
                 break;
             case 3:
+                taskList.setName(String.valueOf(TaskStatus.TESTING));
+                break;
+            case 4:
                 taskList.setName(String.valueOf(TaskStatus.COMPLETED));
                 break;
             default:

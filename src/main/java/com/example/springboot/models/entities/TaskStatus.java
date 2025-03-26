@@ -1,5 +1,5 @@
 package com.example.springboot.models.entities;
 
 public enum TaskStatus {
-    NEW, PENDING, COMPLETED, FAILED
+    NEW, PENDING, TESTING, COMPLETED
 }

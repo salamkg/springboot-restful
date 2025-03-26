@@ -7,6 +7,7 @@ import com.example.springboot.repositories.*;
 import com.example.springboot.services.FileStorageService;
 import com.example.springboot.services.TaskService;
 import com.example.springboot.services.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,8 +46,9 @@ public class TaskServiceImpl implements TaskService {
         Task newTask = new Task();
         newTask.setName(task.getName());
         newTask.setDescription(task.getDescription());
-        newTask.setStatus(task.getStatus());
-        newTask.setPosition(task.getPosition());
+        newTask.setStatus(TaskStatus.NEW);
+        newTask.setPosition(1);
+        newTask.setPriority(task.getPriority());
         newTask.setComments(task.getComments());
         newTask.setBoard(taskList.getBoard());
         newTask.setTaskList(taskList);
@@ -57,9 +59,12 @@ public class TaskServiceImpl implements TaskService {
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
 
         ChangeLog changeLog = new ChangeLog();
-        changeLog.setTaskId(newTask.getId());
+        changeLog.setEntityId(newTask.getId());
+        changeLog.setEntity("Task");
         changeLog.setAction("create");
         changeLog.setChangedBy(firstName);
+        changeLog.setOldValue("Old");
+        changeLog.setNewValue("New");
         changeLog.setTimestamp(new Date());
         changeLogRepository.save(changeLog);
         return taskRequestMapper.toTaskDto(newTask);
@@ -67,28 +72,50 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDto editTask(Long taskId, Task task) {
-        Task newTask = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task for edit not found"));
+        Task existingTask = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task with ID " + taskId + " not found"));
         TaskList taskList = taskListRepository.findByTasks_Id(taskId)
-                .orElseThrow(() -> new RuntimeException("TaskList Not Found"));
+                .orElseThrow(() -> new EntityNotFoundException("TaskList for Task with ID " + taskId + " not found"));
 
-        newTask.setName(task.getName());
-        newTask.setDescription(task.getDescription());
-        newTask.setStatus(task.getStatus());
-        newTask.setPosition(task.getPosition());
-        newTask.setComments(task.getComments());
-        newTask = taskRepository.save(newTask);
+        boolean updated = false;
+        if (task.getName() != null && !task.getName().equals(existingTask.getName())) {
+            existingTask.setName(task.getName());
+            updated = true;
+        }
+        if (task.getDescription() != null && !task.getDescription().equals(existingTask.getDescription())) {
+            existingTask.setDescription(task.getDescription());
+            updated = true;
+        }
+        if (task.getStatus() != null && !task.getStatus().equals(existingTask.getStatus())) {
+            existingTask.setStatus(task.getStatus());
+            updated = true;
+        }
+        if (task.getPriority() != null && !task.getPriority().equals(existingTask.getPriority())) {
+            existingTask.setPriority(task.getPriority());
+            updated = true;
+        }
+        if (task.getComments() != null && !task.getComments().equals(existingTask.getComments())) {
+            existingTask.setComments(task.getComments());
+            updated = true;
+        }
+
+        if (updated) {
+            existingTask = taskRepository.save(existingTask);
+        }
 
         //Logging
         String firstName;
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
         ChangeLog changeLog = new ChangeLog();
-        changeLog.setTaskId(newTask.getId());
+        changeLog.setEntityId(existingTask.getId());
+        changeLog.setEntity("Task");
         changeLog.setChangedBy(firstName);
         changeLog.setAction("edit");
+        changeLog.setOldValue("old");
+        changeLog.setNewValue("new");
         changeLog.setTimestamp(new Date());
         changeLogRepository.save(changeLog);
 
-        return taskRequestMapper.toTaskDto(newTask);
+        return taskRequestMapper.toTaskDto(existingTask);
     }
 
     @Override
@@ -106,13 +133,13 @@ public class TaskServiceImpl implements TaskService {
         }
 
         setTaskStatusByPosition(newPosition, taskToUpdate);
-        taskToUpdate.setPosition(newPosition);
 
         //Logging
         String firstName;
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
         ChangeLog changeLog = new ChangeLog();
-        changeLog.setTaskId(taskId);
+        changeLog.setEntityId(taskId);
+        changeLog.setEntity("Task");
         changeLog.setChangedBy(firstName);
         changeLog.setAction("edit position");
         changeLog.setTimestamp(new Date());
@@ -127,7 +154,8 @@ public class TaskServiceImpl implements TaskService {
         String firstName;
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
         ChangeLog changeLog = new ChangeLog();
-        changeLog.setTaskId(id);
+        changeLog.setEntityId(id);
+        changeLog.setEntity("Task");
         changeLog.setChangedBy(firstName);
         changeLog.setAction("delete");
         changeLog.setTimestamp(new Date());
@@ -144,7 +172,8 @@ public class TaskServiceImpl implements TaskService {
 
         for (Long id: ids) {
             ChangeLog changeLog = new ChangeLog();
-            changeLog.setTaskId(id);
+            changeLog.setEntityId(id);
+            changeLog.setEntity("Task");
             changeLog.setChangedBy(firstName);
             changeLog.setAction("delete");
             changeLog.setTimestamp(new Date());
@@ -177,6 +206,9 @@ public class TaskServiceImpl implements TaskService {
                 task.setStatus(TaskStatus.PENDING);
                 break;
             case 3:
+                task.setStatus(TaskStatus.TESTING);
+                break;
+            case 4:
                 task.setStatus(TaskStatus.COMPLETED);
                 break;
             default:

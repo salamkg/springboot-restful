@@ -12,8 +12,6 @@ import com.example.springboot.repositories.UserRepository;
 import com.example.springboot.services.TaskListService;
 import com.example.springboot.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -50,8 +48,8 @@ public class TaskListServiceImpl implements TaskListService {
         String firstName;
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
         ChangeLog changeLog = new ChangeLog();
-        changeLog.setBoardId(board.getId());
-        changeLog.setTaskListId(newTaskList.getId());
+        changeLog.setEntityId(newTaskList.getId());
+        changeLog.setEntity("TaskList");
         changeLog.setAction("create");
         changeLog.setChangedBy(firstName);
         changeLog.setTimestamp(new Date());
@@ -82,8 +80,8 @@ public class TaskListServiceImpl implements TaskListService {
         String firstName;
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
         ChangeLog changeLog = new ChangeLog();
-        changeLog.setBoardId(board.getId());
-        changeLog.setTaskListId(editTaskList.getId());
+        changeLog.setEntityId(editTaskList.getId());
+        changeLog.setEntity("TaskList");
         changeLog.setAction("edit");
         changeLog.setChangedBy(firstName);
         changeLog.setTimestamp(new Date());
@@ -102,8 +100,8 @@ public class TaskListServiceImpl implements TaskListService {
         Board board = boardRepository.findById(taskList.getBoard().getId()).orElseThrow(() -> new RuntimeException("Board Not Found"));
 
         ChangeLog changeLog = new ChangeLog();
-        changeLog.setTaskListId(taskList.getId());
-        changeLog.setBoardId(board.getId());
+        changeLog.setEntityId(taskList.getId());
+        changeLog.setEntity("TaskList");
         changeLog.setChangedBy(firstName);
         changeLog.setAction("delete");
         changeLog.setTimestamp(new Date());

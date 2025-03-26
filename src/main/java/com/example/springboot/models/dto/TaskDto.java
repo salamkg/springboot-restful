@@ -15,6 +15,7 @@ public class TaskDto {
     private String name;
     private String description;
     private TaskStatus status;
+    private String priority;
     private CommentDto[] comments;
     private TaskListDto taskListDto;
     private MultipartFile files;

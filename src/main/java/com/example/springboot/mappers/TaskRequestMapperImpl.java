@@ -8,8 +8,6 @@ import com.example.springboot.repositories.TaskListRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class TaskRequestMapperImpl implements TaskRequestMapper {
@@ -33,6 +31,7 @@ public class TaskRequestMapperImpl implements TaskRequestMapper {
         taskDto.id(task.getId());
         taskDto.name(task.getName());
         taskDto.description(task.getDescription());
+        taskDto.priority(task.getPriority());
         if (task.getComments() != null) {
             taskDto.comments(task.getComments().stream()
                     .map(comment -> new CommentDto(
