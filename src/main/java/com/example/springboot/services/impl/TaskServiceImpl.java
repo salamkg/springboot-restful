@@ -7,13 +7,18 @@ import com.example.springboot.repositories.*;
 import com.example.springboot.services.FileStorageService;
 import com.example.springboot.services.TaskService;
 import com.example.springboot.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.squareup.okhttp.*;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
+import java.net.URI;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,21 +42,33 @@ public class TaskServiceImpl implements TaskService {
     private BoardRepository boardRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private EntityManager em;
 
     @Override
-    public TaskDto createTask(Task task, Long taskListId, MultipartFile files) {
+    public TaskDto createTask(String name, String description, String priority, Long taskListId, List<MultipartFile> files) {
         TaskList taskList = taskListRepository.findById(taskListId)
                 .orElseThrow(() -> new RuntimeException("TaskList Not Found"));
 
         Task newTask = new Task();
-        newTask.setName(task.getName());
-        newTask.setDescription(task.getDescription());
+        newTask.setName(name);
+        newTask.setDescription(description);
         newTask.setStatus(TaskStatus.NEW);
         newTask.setPosition(1);
-        newTask.setPriority(task.getPriority());
-        newTask.setComments(task.getComments());
+        newTask.setPriority(priority);
         newTask.setBoard(taskList.getBoard());
         newTask.setTaskList(taskList);
+
+        List<Attachment> fileList = new ArrayList<>();
+        for (MultipartFile file : files) {
+            Attachment attachment = new Attachment();
+            attachment.setTask(newTask);
+            attachment.setFilename(file.getOriginalFilename());
+            attachment.setFileType(file.getContentType());
+            attachment.setFilePath(fileStorageService.storeFile(file));
+            fileList.add(attachment);
+        }
+        newTask.setAttachedFiles(fileList);
         taskRepository.save(newTask);
 
         //Logging
@@ -63,10 +80,14 @@ public class TaskServiceImpl implements TaskService {
         changeLog.setEntity("Task");
         changeLog.setAction("create");
         changeLog.setChangedBy(firstName);
-        changeLog.setOldValue("Old");
-        changeLog.setNewValue("New");
-        changeLog.setTimestamp(new Date());
+        changeLog.setEntityName(newTask.getName());
+        changeLog.setEntityDescription(newTask.getDescription());
+        changeLog.setEntityPosition(newTask.getPosition());
+        changeLog.setPriority(newTask.getPriority());
+        changeLog.setStatus(newTask.getStatus());
+        changeLog.setCreated_at(new Date());
         changeLogRepository.save(changeLog);
+
         return taskRequestMapper.toTaskDto(newTask);
     }
 
@@ -98,24 +119,31 @@ public class TaskServiceImpl implements TaskService {
             updated = true;
         }
 
+        saveChangeLog(existingTask);
         if (updated) {
             existingTask = taskRepository.save(existingTask);
         }
 
-        //Logging
+        return taskRequestMapper.toTaskDto(existingTask);
+    }
+
+    private void saveChangeLog(Task existingTask) {
+        //TODO Improve to save only edited values
         String firstName;
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
         ChangeLog changeLog = new ChangeLog();
+
         changeLog.setEntityId(existingTask.getId());
         changeLog.setEntity("Task");
         changeLog.setChangedBy(firstName);
         changeLog.setAction("edit");
-        changeLog.setOldValue("old");
-        changeLog.setNewValue("new");
-        changeLog.setTimestamp(new Date());
+        changeLog.setEntityName(existingTask.getName());
+        changeLog.setEntityDescription(existingTask.getDescription());
+        changeLog.setEntityPosition(existingTask.getPosition());
+        changeLog.setPriority(existingTask.getPriority());
+        changeLog.setStatus(existingTask.getStatus());
+        changeLog.setUpdated_at(new Date());
         changeLogRepository.save(changeLog);
-
-        return taskRequestMapper.toTaskDto(existingTask);
     }
 
     @Override
@@ -133,19 +161,8 @@ public class TaskServiceImpl implements TaskService {
         }
 
         setTaskStatusByPosition(newPosition, taskToUpdate);
-
-        //Logging
-        String firstName;
-        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
-        ChangeLog changeLog = new ChangeLog();
-        changeLog.setEntityId(taskId);
-        changeLog.setEntity("Task");
-        changeLog.setChangedBy(firstName);
-        changeLog.setAction("edit position");
-        changeLog.setTimestamp(new Date());
-        changeLogRepository.save(changeLog);
-
         taskRepository.save(taskToUpdate);
+        saveChangeLog(taskToUpdate);
     }
 
     @Override
@@ -158,7 +175,7 @@ public class TaskServiceImpl implements TaskService {
         changeLog.setEntity("Task");
         changeLog.setChangedBy(firstName);
         changeLog.setAction("delete");
-        changeLog.setTimestamp(new Date());
+        changeLog.setUpdated_at(new Date());
         changeLogRepository.save(changeLog);
 
         taskRepository.deleteById(id);
@@ -176,7 +193,7 @@ public class TaskServiceImpl implements TaskService {
             changeLog.setEntity("Task");
             changeLog.setChangedBy(firstName);
             changeLog.setAction("delete");
-            changeLog.setTimestamp(new Date());
+            changeLog.setUpdated_at(new Date());
             changeLogRepository.save(changeLog);
 
             taskRepository.deleteById(id);
@@ -185,10 +202,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getAllTasks() {
-        return taskRepository.findAll().stream()
+    public List<TaskDto> getAllTasks(String sort) {
+        List<TaskDto> tasks = taskRepository.findAll(Sort.by(Sort.Direction.ASC, sort)).stream()
                 .map(task -> taskRequestMapper.toTaskDto(task))
                 .collect(Collectors.toList());
+        return tasks;
+//        return taskRepository.findAll().stream()
+//                .map(task -> taskRequestMapper.toTaskDto(task))
+//                .collect(Collectors.toList());
     }
 
     @Override

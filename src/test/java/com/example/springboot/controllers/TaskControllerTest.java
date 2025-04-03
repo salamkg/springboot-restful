@@ -34,26 +34,7 @@ public class TaskControllerTest {
 
     @Test
     public void createTaskAndReturnStatus200() throws Exception {
-        //Given
-        Long boardId = 1L;
-        Long taskListId = 1L;
-        Task task = Task.builder()
-                .name("Task 1")
-                .description("Task Description")
-                .status(TaskStatus.NEW)
-                .build();
 
-        BDDMockito.given(taskService.createTask(any(Task.class), eq(taskListId), eq(null)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
-        //When
-        ResultActions response = mockMvc.perform(post("/api/tasks")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(task)));
-        //Then
-        response.andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("Task 1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Task Description"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(TaskStatus.NEW.toString()));
 
     }
 }

@@ -27,7 +27,7 @@ public class Task {
 
     @ColumnDefault("NEW")
     @Enumerated(value = EnumType.STRING)
-    private TaskStatus status = TaskStatus.NEW;
+    private TaskStatus status;
 
     private Integer position;
 
@@ -55,7 +55,7 @@ public class Task {
     @JoinColumn(name = "task_list_id")
     private TaskList taskList;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "task_users", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> assignedUsers = new ArrayList<>();
 

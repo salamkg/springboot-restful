@@ -11,6 +11,7 @@ import com.example.springboot.repositories.TaskListRepository;
 import com.example.springboot.repositories.UserRepository;
 import com.example.springboot.services.BoardService;
 import com.example.springboot.services.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public BoardDto createBoard(String username, Board board) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User with " + username +" not found"));
 
         Board newBoard = new Board();
         newBoard.setId(board.getId());
@@ -51,7 +52,7 @@ public class BoardServiceImpl implements BoardService {
         changeLog.setEntity("Board");
         changeLog.setAction("create");
         changeLog.setChangedBy(user.getFirstName());
-        changeLog.setTimestamp(new Date());
+        changeLog.setCreated_at(new Date());
         changeLogRepository.save(changeLog);
 
         return boardRequestMapper.toBoardDto(newBoard);
@@ -59,7 +60,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public BoardDto updateBoard(Long boardId, Board board) {
-        Board editBoard = boardRepository.findById(boardId).orElseThrow(() -> new RuntimeException("Board For Edit Not Found"));
+        Board editBoard = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found"));
         if (board.getName() != null) {
             editBoard.setName(board.getName());
         }
@@ -88,7 +89,7 @@ public class BoardServiceImpl implements BoardService {
                 throw new RuntimeException("User with username " + user.getUsername() + " not found");
             }
         }
-        changeLog.setTimestamp(new Date());
+        changeLog.setUpdated_at(new Date());
         changeLogRepository.save(changeLog);
 
         return boardRequestMapper.toBoardDto(board);
@@ -110,7 +111,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void deleteBoardById(Long boardId) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new RuntimeException(String.format("Board with id %d does not exist", boardId)));
+                .orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found"));
 
         ChangeLog changeLog = new ChangeLog();
         changeLog.setEntityId(boardId);
@@ -127,7 +128,7 @@ public class BoardServiceImpl implements BoardService {
             }
         }
         boardRepository.deleteById(boardId);
-        changeLog.setTimestamp(new Date());
+        changeLog.setUpdated_at(new Date());
         changeLogRepository.save(changeLog);
     }
 
@@ -155,7 +156,7 @@ public class BoardServiceImpl implements BoardService {
         }
 
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new RuntimeException("Board does not exist"));
+                .orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found"));
 
         board.getTaskLists().add(taskList);
         taskList.setBoard(board);
@@ -175,7 +176,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void updateTaskListPosition(Long boardId, Long taskListId, Integer newPosition) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new RuntimeException("Board does not exist"));
+                .orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found"));
 
         TaskList taskListToUpdate = board.getTaskLists().stream()
                 .filter(taskList -> taskList.getId().equals(taskListId))

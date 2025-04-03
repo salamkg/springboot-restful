@@ -11,6 +11,7 @@ import com.example.springboot.repositories.TaskListRepository;
 import com.example.springboot.repositories.UserRepository;
 import com.example.springboot.services.TaskListService;
 import com.example.springboot.services.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ public class TaskListServiceImpl implements TaskListService {
     @Override
     public TaskListDto createTaskList(Long boardId, TaskList taskList) {
 
-        Board board = boardRepository.findById(boardId).orElseThrow(() -> new RuntimeException("Board not found"));
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found"));
 
         TaskList newTaskList = new TaskList();
         newTaskList.setName(taskList.getName());
@@ -52,7 +53,7 @@ public class TaskListServiceImpl implements TaskListService {
         changeLog.setEntity("TaskList");
         changeLog.setAction("create");
         changeLog.setChangedBy(firstName);
-        changeLog.setTimestamp(new Date());
+        changeLog.setCreated_at(new Date());
         changeLogRepository.save(changeLog);
 
         return taskListRequestMapper.toTaskListDto(newTaskList);
@@ -60,8 +61,8 @@ public class TaskListServiceImpl implements TaskListService {
 
     @Override
     public TaskListDto updateTaskList(Long boardId, Long taskListId, TaskList taskList) {
-        Board board = boardRepository.findById(boardId).orElseThrow(() -> new RuntimeException("Board not found")); //TODO remove?
-        TaskList editTaskList = taskListRepository.findById(taskListId).orElseThrow(() -> new RuntimeException("TaskList for edit not found"));
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found")); //TODO remove?
+        TaskList editTaskList = taskListRepository.findById(taskListId).orElseThrow(() -> new EntityNotFoundException("TaskList with ID " + taskListId + " Not Found"));
         if (taskList.getName() != null) {
             editTaskList.setName(taskList.getName());
         }
@@ -84,7 +85,7 @@ public class TaskListServiceImpl implements TaskListService {
         changeLog.setEntity("TaskList");
         changeLog.setAction("edit");
         changeLog.setChangedBy(firstName);
-        changeLog.setTimestamp(new Date());
+        changeLog.setUpdated_at(new Date());
         changeLogRepository.save(changeLog);
 
         return taskListRequestMapper.toTaskListDto(editTaskList);
@@ -96,15 +97,15 @@ public class TaskListServiceImpl implements TaskListService {
         String firstName;
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
 
-        TaskList taskList = taskListRepository.findById(taskListId).orElseThrow(() -> new RuntimeException("TaskList Not Found"));
-        Board board = boardRepository.findById(taskList.getBoard().getId()).orElseThrow(() -> new RuntimeException("Board Not Found"));
+        TaskList taskList = taskListRepository.findById(taskListId).orElseThrow(() -> new EntityNotFoundException("Board with ID " + taskListId + " Not Found"));
+        Board board = boardRepository.findById(taskList.getBoard().getId()).orElseThrow(() -> new EntityNotFoundException("Board with ID " + taskList.getBoard().getId() + " Not Found"));
 
         ChangeLog changeLog = new ChangeLog();
         changeLog.setEntityId(taskList.getId());
         changeLog.setEntity("TaskList");
         changeLog.setChangedBy(firstName);
         changeLog.setAction("delete");
-        changeLog.setTimestamp(new Date());
+        changeLog.setUpdated_at(new Date());
         changeLogRepository.save(changeLog);
 
         taskListRepository.deleteById(taskListId);

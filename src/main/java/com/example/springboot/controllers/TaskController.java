@@ -1,6 +1,7 @@
 package com.example.springboot.controllers;
 
 import com.example.springboot.models.dto.TaskDto;
+import com.example.springboot.models.dto.TaskListDto;
 import com.example.springboot.models.entities.Task;
 import com.example.springboot.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,8 +21,8 @@ public class TaskController {
     private TaskService taskService;
 
     @GetMapping("/tasks")
-    public ResponseEntity<List<TaskDto>> getAllTasks() {
-        List<TaskDto> allTasks = taskService.getAllTasks();
+    public ResponseEntity<List<TaskDto>> getAllTasks(@RequestParam String sort) {
+        List<TaskDto> allTasks = taskService.getAllTasks(sort);
         return ResponseEntity.ok(allTasks);
     }
 
@@ -30,11 +32,13 @@ public class TaskController {
         return ResponseEntity.ok(taskDto);
     }
 
-    @PostMapping("/{taskListId}/task/create")
-    public ResponseEntity<TaskDto> createTask(@RequestBody Task task,
-                                              @PathVariable Long taskListId) {
+    @PostMapping(value = "/{taskListId}/task/create", consumes = "multipart/form-data")
+    public ResponseEntity<TaskDto> createTask(@RequestParam String name,
+                                              @RequestParam String description,
+                                              @RequestParam String priority,
+                                              @PathVariable Long taskListId, @RequestParam(name = "file") List<MultipartFile> files) {
 
-        TaskDto newTask = taskService.createTask(task, taskListId, null);
+        TaskDto newTask = taskService.createTask(name, description, priority, taskListId, files);
         return ResponseEntity.ok(newTask);
     }
 

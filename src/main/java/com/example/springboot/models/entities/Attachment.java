@@ -15,7 +15,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-//@Table(name = "attachments")
+@Table(name = "attachments")
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
