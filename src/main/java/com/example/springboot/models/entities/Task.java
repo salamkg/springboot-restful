@@ -25,7 +25,6 @@ public class Task {
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachedFiles;
 
-    @ColumnDefault("NEW")
     @Enumerated(value = EnumType.STRING)
     private TaskStatus status;
 

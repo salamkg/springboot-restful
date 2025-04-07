@@ -36,7 +36,7 @@ public class TaskController {
     public ResponseEntity<TaskDto> createTask(@RequestParam String name,
                                               @RequestParam String description,
                                               @RequestParam String priority,
-                                              @PathVariable Long taskListId, @RequestParam(name = "file") List<MultipartFile> files) {
+                                              @PathVariable Long taskListId, @RequestParam(name = "file", required = false) List<MultipartFile> files) {
 
         TaskDto newTask = taskService.createTask(name, description, priority, taskListId, files);
         return ResponseEntity.ok(newTask);
