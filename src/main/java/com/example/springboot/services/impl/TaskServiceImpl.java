@@ -7,17 +7,12 @@ import com.example.springboot.repositories.*;
 import com.example.springboot.services.FileStorageService;
 import com.example.springboot.services.TaskService;
 import com.example.springboot.services.UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.*;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,8 +37,6 @@ public class TaskServiceImpl implements TaskService {
     private BoardRepository boardRepository;
     @Autowired
     private UserService userService;
-    @Autowired
-    private EntityManager em;
 
     @Override
     public TaskDto createTask(String name, String description, String priority, Long taskListId, List<MultipartFile> files) {
@@ -59,34 +52,20 @@ public class TaskServiceImpl implements TaskService {
         newTask.setBoard(taskList.getBoard());
         newTask.setTaskList(taskList);
 
-        List<Attachment> fileList = new ArrayList<>();
-        for (MultipartFile file : files) {
-            Attachment attachment = new Attachment();
-            attachment.setTask(newTask);
-            attachment.setFilename(file.getOriginalFilename());
-            attachment.setFileType(file.getContentType());
-            attachment.setFilePath(fileStorageService.storeFile(file));
-            fileList.add(attachment);
+        if (files != null && !files.isEmpty()) {
+            List<Attachment> fileList = new ArrayList<>();
+            for (MultipartFile file : files) {
+                Attachment attachment = new Attachment();
+                attachment.setTask(newTask);
+                attachment.setFilename(file.getOriginalFilename());
+                attachment.setFileType(file.getContentType());
+                attachment.setFilePath(fileStorageService.storeFile(file));
+                fileList.add(attachment);
+            }
+            newTask.setAttachedFiles(fileList);
         }
-        newTask.setAttachedFiles(fileList);
         taskRepository.save(newTask);
-
-        //Logging
-        String firstName;
-        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
-
-        ChangeLog changeLog = new ChangeLog();
-        changeLog.setEntityId(newTask.getId());
-        changeLog.setEntity("Task");
-        changeLog.setAction("create");
-        changeLog.setChangedBy(firstName);
-        changeLog.setEntityName(newTask.getName());
-        changeLog.setEntityDescription(newTask.getDescription());
-        changeLog.setEntityPosition(newTask.getPosition());
-        changeLog.setPriority(newTask.getPriority());
-        changeLog.setStatus(newTask.getStatus());
-        changeLog.setCreated_at(new Date());
-        changeLogRepository.save(changeLog);
+        saveChangeLog(newTask, null,"create");
 
         return taskRequestMapper.toTaskDto(newTask);
     }
@@ -119,7 +98,7 @@ public class TaskServiceImpl implements TaskService {
             updated = true;
         }
 
-        saveChangeLog(existingTask);
+        saveChangeLog(task, existingTask,"edit");
         if (updated) {
             existingTask = taskRepository.save(existingTask);
         }
@@ -127,23 +106,57 @@ public class TaskServiceImpl implements TaskService {
         return taskRequestMapper.toTaskDto(existingTask);
     }
 
-    private void saveChangeLog(Task existingTask) {
+    private void saveChangeLog(Task newTask, Task oldTask, String action) {
         //TODO Improve to save only edited values
         String firstName;
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
         ChangeLog changeLog = new ChangeLog();
-
-        changeLog.setEntityId(existingTask.getId());
+        changeLog.setEntityId(newTask.getId());
         changeLog.setEntity("Task");
         changeLog.setChangedBy(firstName);
-        changeLog.setAction("edit");
-        changeLog.setEntityName(existingTask.getName());
-        changeLog.setEntityDescription(existingTask.getDescription());
-        changeLog.setEntityPosition(existingTask.getPosition());
-        changeLog.setPriority(existingTask.getPriority());
-        changeLog.setStatus(existingTask.getStatus());
+        changeLog.setAction(action);
         changeLog.setUpdated_at(new Date());
-        changeLogRepository.save(changeLog);
+
+        boolean isChanged = false;
+        if ("edit".equals(action) || "create".equals(action) || "delete".equals(action)) {
+            changeLog.setEntityName(newTask.getName());
+            changeLog.setEntityDescription(newTask.getDescription());
+            changeLog.setStatus(newTask.getStatus());
+            changeLog.setPriority(newTask.getPriority());
+            changeLog.setEntityPosition(newTask.getPosition());
+            newTask.setComments(newTask.getComments());
+            isChanged = true;
+        } else {
+            if (oldTask != null) {
+                if (newTask.getName() != null && !newTask.getName().equals(oldTask.getName())) {
+                    changeLog.setEntityName(newTask.getName());
+                    isChanged = true;
+                }
+                if (newTask.getDescription() != null && !newTask.getDescription().equals(oldTask.getDescription())) {
+                    changeLog.setEntityDescription(newTask.getDescription());
+                    isChanged = true;
+                }
+                if (newTask.getStatus() != null && !newTask.getStatus().equals(oldTask.getStatus())) {
+                    changeLog.setStatus(newTask.getStatus());
+                    isChanged = true;
+                }
+                if (newTask.getPriority() != null && !newTask.getPriority().equals(oldTask.getPriority())) {
+                    changeLog.setPriority(newTask.getPriority());
+                    isChanged = true;
+                }
+                if (newTask.getPosition() != null && !newTask.getPosition().equals(oldTask.getPosition())) {
+                    changeLog.setEntityPosition(newTask.getPosition());
+                    isChanged = true;
+                }
+                if (newTask.getComments() != null && !newTask.getComments().equals(oldTask.getComments())) {
+                    newTask.setComments(newTask.getComments());
+                    isChanged = true;
+                }
+            }
+        }
+        if (isChanged) {
+            changeLogRepository.save(changeLog);
+        }
     }
 
     @Override
@@ -162,7 +175,7 @@ public class TaskServiceImpl implements TaskService {
 
         setTaskStatusByPosition(newPosition, taskToUpdate);
         taskRepository.save(taskToUpdate);
-        saveChangeLog(taskToUpdate);
+        saveChangeLog(taskToUpdate, null,"edit");
     }
 
     @Override
@@ -198,7 +211,6 @@ public class TaskServiceImpl implements TaskService {
 
             taskRepository.deleteById(id);
         }
-
     }
 
     @Override
@@ -207,9 +219,6 @@ public class TaskServiceImpl implements TaskService {
                 .map(task -> taskRequestMapper.toTaskDto(task))
                 .collect(Collectors.toList());
         return tasks;
-//        return taskRepository.findAll().stream()
-//                .map(task -> taskRequestMapper.toTaskDto(task))
-//                .collect(Collectors.toList());
     }
 
     @Override
