@@ -10,11 +10,12 @@ import java.util.List;
 @Service
 public interface TaskService {
 
-    TaskDto createTask(String name, String description, String priority, Long taskListId, List<MultipartFile> files);
+    TaskDto createTask(String name, String description, String priority, Long taskListId, List<Long> ids,List<MultipartFile> files);
     TaskDto editTask(Long taskId, Task task);
     void deleteTaskById(Long id);
     void deleteTasksById(List<Long> id);
     List<TaskDto> getAllTasks(String sort);
     TaskDto getTaskById(Long id);
     void updateTaskPosition(Long taskId, Integer position);
+    void updateTaskAssignees(Long taskId, List<Long> assigneeIds);
 }

@@ -36,9 +36,12 @@ public class TaskController {
     public ResponseEntity<TaskDto> createTask(@RequestParam String name,
                                               @RequestParam String description,
                                               @RequestParam String priority,
-                                              @PathVariable Long taskListId, @RequestParam(name = "file", required = false) List<MultipartFile> files) {
+                                              @PathVariable Long taskListId,
+                                              @RequestParam(name = "ids", required = false) List<Long> ids,
+                                              @RequestParam(name = "file", required = false) List<MultipartFile> files
+    ) {
 
-        TaskDto newTask = taskService.createTask(name, description, priority, taskListId, files);
+        TaskDto newTask = taskService.createTask(name, description, priority, taskListId, ids, files);
         return ResponseEntity.ok(newTask);
     }
 
@@ -66,6 +69,14 @@ public class TaskController {
     @PutMapping("/tasks/{taskId}/order")
     public ResponseEntity<TaskDto> updateTaskPosition(@PathVariable Long taskId, @RequestParam(name = "newPosition") Integer newPosition) {
         taskService.updateTaskPosition(taskId, newPosition);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/tasks/{taskId}/change-assignee")
+    public ResponseEntity<TaskDto> changeAssignee(@PathVariable Long taskId,
+                                                  @RequestParam(name = "ids", required = false) List<Long> ids) {
+        taskService.updateTaskAssignees(taskId, ids);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -8,6 +8,7 @@ import com.example.springboot.services.FileStorageService;
 import com.example.springboot.services.TaskService;
 import com.example.springboot.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -39,9 +40,11 @@ public class TaskServiceImpl implements TaskService {
     private UserService userService;
 
     @Override
-    public TaskDto createTask(String name, String description, String priority, Long taskListId, List<MultipartFile> files) {
+    public TaskDto createTask(String name, String description, String priority, Long taskListId, List<Long> ids, List<MultipartFile> files) {
         TaskList taskList = taskListRepository.findById(taskListId)
                 .orElseThrow(() -> new RuntimeException("TaskList Not Found"));
+        User author = userRepository.findByUsername(userService.getCurrentUser())
+                .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
 
         Task newTask = new Task();
         newTask.setName(name);
@@ -49,8 +52,17 @@ public class TaskServiceImpl implements TaskService {
         newTask.setStatus(TaskStatus.NEW);
         newTask.setPosition(1);
         newTask.setPriority(priority);
+        newTask.setAuthor(author);
         newTask.setBoard(taskList.getBoard());
         newTask.setTaskList(taskList);
+
+        if (ids != null && !ids.isEmpty()) {
+            List<User> assignees = userRepository.findAllById(ids)
+                    .stream()
+                    .map(user -> userRepository.findById(user.getId()).orElseThrow(() -> new EntityNotFoundException("User Not Found")))
+                    .toList();
+            newTask.setAssignedUsers(assignees);
+        }
 
         if (files != null && !files.isEmpty()) {
             List<Attachment> fileList = new ArrayList<>();
@@ -113,7 +125,7 @@ public class TaskServiceImpl implements TaskService {
         ChangeLog changeLog = new ChangeLog();
         changeLog.setEntityId(newTask.getId());
         changeLog.setEntity("Task");
-        changeLog.setChangedBy(firstName);
+        changeLog.setChangedBy(newTask.getAuthor().getUsername());
         changeLog.setAction(action);
         changeLog.setUpdated_at(new Date());
 
@@ -157,6 +169,20 @@ public class TaskServiceImpl implements TaskService {
         if (isChanged) {
             changeLogRepository.save(changeLog);
         }
+    }
+
+    @Override
+    @Transactional
+    public void updateTaskAssignees(Long taskId, List<Long> assigneeIds) {
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
+        if (assigneeIds != null && !assigneeIds.isEmpty()) {
+            List<User> assignees = userRepository.findAllById(assigneeIds)
+                    .stream()
+                    .distinct()
+                    .collect(Collectors.toList());
+            task.setAssignedUsers(assignees);
+        }
+        taskRepository.save(task);
     }
 
     @Override
