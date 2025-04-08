@@ -21,33 +21,24 @@ public class ChangeLog {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String entity;
+    private String entityType;
     private Long entityId;
     private String action; // Тип изменения
     private String changedBy;
 
-    @Column(name = "name")
-    private String entityName;
+    @Column(name = "attribute_names", columnDefinition = "TEXT")
+    private String attributeNames;
 
-    @Column(name = "description")
-    private String entityDescription;
-
-    @Enumerated(value = EnumType.STRING)
-    private TaskStatus status;
-
-    @Column(name = "position")
-    private Integer entityPosition;
-
-    private String priority;
+    @Column(columnDefinition = "TEXT")
+    private String changes;
 
     @Lob
-    @Column(name = "data", columnDefinition = "TEXT")
-    private String changelogDataJson;
+    private String oldValue;
+
+    @Lob
+    private String newValue;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
-    private Date created_at;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
-    private Date updated_at;
+    private Date changedAt;
 
 }

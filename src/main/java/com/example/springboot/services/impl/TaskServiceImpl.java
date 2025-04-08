@@ -7,8 +7,8 @@ import com.example.springboot.repositories.*;
 import com.example.springboot.services.FileStorageService;
 import com.example.springboot.services.TaskService;
 import com.example.springboot.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -77,7 +77,7 @@ public class TaskServiceImpl implements TaskService {
             newTask.setAttachedFiles(fileList);
         }
         taskRepository.save(newTask);
-        saveChangeLog(newTask, null,"create");
+        saveChangeLog(newTask,null,"create");
 
         return taskRequestMapper.toTaskDto(newTask);
     }
@@ -124,55 +124,73 @@ public class TaskServiceImpl implements TaskService {
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
         ChangeLog changeLog = new ChangeLog();
         changeLog.setEntityId(newTask.getId());
-        changeLog.setEntity("Task");
-        changeLog.setChangedBy(newTask.getAuthor().getUsername());
-        changeLog.setAction(action);
-        changeLog.setUpdated_at(new Date());
+        changeLog.setEntityType("Task");
 
         boolean isChanged = false;
-        if ("edit".equals(action) || "create".equals(action) || "delete".equals(action)) {
-            changeLog.setEntityName(newTask.getName());
-            changeLog.setEntityDescription(newTask.getDescription());
-            changeLog.setStatus(newTask.getStatus());
-            changeLog.setPriority(newTask.getPriority());
-            changeLog.setEntityPosition(newTask.getPosition());
-            newTask.setComments(newTask.getComments());
-            isChanged = true;
-        } else {
-            if (oldTask != null) {
-                if (newTask.getName() != null && !newTask.getName().equals(oldTask.getName())) {
-                    changeLog.setEntityName(newTask.getName());
-                    isChanged = true;
-                }
-                if (newTask.getDescription() != null && !newTask.getDescription().equals(oldTask.getDescription())) {
-                    changeLog.setEntityDescription(newTask.getDescription());
-                    isChanged = true;
-                }
-                if (newTask.getStatus() != null && !newTask.getStatus().equals(oldTask.getStatus())) {
-                    changeLog.setStatus(newTask.getStatus());
-                    isChanged = true;
-                }
-                if (newTask.getPriority() != null && !newTask.getPriority().equals(oldTask.getPriority())) {
-                    changeLog.setPriority(newTask.getPriority());
-                    isChanged = true;
-                }
-                if (newTask.getPosition() != null && !newTask.getPosition().equals(oldTask.getPosition())) {
-                    changeLog.setEntityPosition(newTask.getPosition());
-                    isChanged = true;
-                }
-                if (newTask.getComments() != null && !newTask.getComments().equals(oldTask.getComments())) {
-                    newTask.setComments(newTask.getComments());
-                    isChanged = true;
-                }
+
+        if ("create".equals(action)) {
+            try {
+                Map<String, Map<String, String>> changes = new HashMap<>();
+                changes.put("name", Map.of("old", "","new", newTask.getName()));
+                changes.put("description", Map.of("old", "","new", newTask.getDescription()));
+                changes.put("status", Map.of("old", "","new", newTask.getStatus().toString()));
+                changes.put("priority", Map.of("old", "","new", newTask.getPriority()));
+                changes.put("assignees", Map.of("old", "","new", newTask.getAssignedUsers().stream().map(User::getUsername).toString()));
+                ObjectMapper objectMapper = new ObjectMapper();
+                String changesJson = objectMapper.writeValueAsString(changes);
+
+                changeLog.setAction(action);
+                changeLog.setEntityId(newTask.getId());
+                changeLog.setEntityType("Task");
+                changeLog.setAttributeNames("all");
+                changeLog.setChanges(changesJson);
+                changeLog.setChangedBy(newTask.getAuthor().getUsername());
+                changeLog.setChangedAt(new Date());
+                isChanged = true;
+            }
+            catch (Exception e) {
+                throw new EntityNotFoundException("Could not save changes");
+            }
+
+        } else if (oldTask != null && "edit".equals(action) || "delete".equals(action)) {
+            if (newTask.getName() != null && !newTask.getName().equals(oldTask.getName())) {
+                changeLog.setAttributeNames("name");
+                changeLog.setOldValue(oldTask.getName());
+                changeLog.setNewValue(newTask.getName());
+                isChanged = true;
+            }
+            if (newTask.getDescription() != null && !newTask.getDescription().equals(oldTask.getDescription())) {
+                changeLog.setAttributeNames("description");
+                changeLog.setOldValue(oldTask.getDescription());
+                changeLog.setNewValue(newTask.getDescription());
+                isChanged = true;
+            }
+            if (newTask.getPosition() != null && !newTask.getPosition().equals(oldTask.getPosition())) {
+                changeLog.setAttributeNames("position");
+                changeLog.setOldValue(String.valueOf(oldTask.getPosition()));
+                changeLog.setNewValue(String.valueOf(newTask.getPosition()));
+                isChanged = true;
+            }
+            if (newTask.getPriority() != null && !newTask.getPriority().equals(oldTask.getPriority())) {
+                changeLog.setAttributeNames("priority");
+                changeLog.setOldValue(oldTask.getPriority());
+                changeLog.setNewValue(newTask.getPriority());
+                isChanged = true;
+            }
+            if (newTask.getStatus() != null && !newTask.getStatus().equals(oldTask.getStatus())) {
+                changeLog.setAttributeNames("status");
+                changeLog.setOldValue(String.valueOf(oldTask.getStatus()));
+                changeLog.setNewValue(String.valueOf(newTask.getStatus()));
+                isChanged = true;
             }
         }
+
         if (isChanged) {
             changeLogRepository.save(changeLog);
         }
     }
 
     @Override
-    @Transactional
     public void updateTaskAssignees(Long taskId, List<Long> assigneeIds) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
         if (assigneeIds != null && !assigneeIds.isEmpty()) {
@@ -209,14 +227,6 @@ public class TaskServiceImpl implements TaskService {
         //Logging
         String firstName;
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
-        ChangeLog changeLog = new ChangeLog();
-        changeLog.setEntityId(id);
-        changeLog.setEntity("Task");
-        changeLog.setChangedBy(firstName);
-        changeLog.setAction("delete");
-        changeLog.setUpdated_at(new Date());
-        changeLogRepository.save(changeLog);
-
         taskRepository.deleteById(id);
     }
 
@@ -227,14 +237,6 @@ public class TaskServiceImpl implements TaskService {
         firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
 
         for (Long id: ids) {
-            ChangeLog changeLog = new ChangeLog();
-            changeLog.setEntityId(id);
-            changeLog.setEntity("Task");
-            changeLog.setChangedBy(firstName);
-            changeLog.setAction("delete");
-            changeLog.setUpdated_at(new Date());
-            changeLogRepository.save(changeLog);
-
             taskRepository.deleteById(id);
         }
     }

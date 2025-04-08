@@ -47,13 +47,6 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(newBoard);
 
         //Logging
-        ChangeLog changeLog = new ChangeLog();
-        changeLog.setEntityId(newBoard.getId());
-        changeLog.setEntity("Board");
-        changeLog.setAction("create");
-        changeLog.setChangedBy(user.getFirstName());
-        changeLog.setCreated_at(new Date());
-        changeLogRepository.save(changeLog);
 
         return boardRequestMapper.toBoardDto(newBoard);
     }
@@ -76,22 +69,6 @@ public class BoardServiceImpl implements BoardService {
         }
         boardRepository.save(editBoard);
 
-        //Logging
-        ChangeLog changeLog = new ChangeLog();
-        changeLog.setEntityId(board.getId());
-        changeLog.setEntity("Board");
-        changeLog.setAction("edit");
-        for (User user: users) {
-            Optional<User> optionalUser = userRepository.findByUsername(user.getUsername());
-            if (optionalUser.isPresent()) {
-                changeLog.setChangedBy(optionalUser.get().getFirstName());
-            } else {
-                throw new RuntimeException("User with username " + user.getUsername() + " not found");
-            }
-        }
-        changeLog.setUpdated_at(new Date());
-        changeLogRepository.save(changeLog);
-
         return boardRequestMapper.toBoardDto(board);
     }
 
@@ -113,23 +90,6 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found"));
 
-        ChangeLog changeLog = new ChangeLog();
-        changeLog.setEntityId(boardId);
-        changeLog.setEntity("Board");
-        changeLog.setAction("delete");
-
-        //Get Board users to set username
-        for (User user: getBoardUsers(board.getUsers())) {
-            Optional<User> optionalUser = userRepository.findByUsername(user.getUsername());
-            if (optionalUser.isPresent()) {
-                changeLog.setChangedBy(optionalUser.get().getFirstName());
-            } else {
-                throw new RuntimeException("User with username " + user.getUsername() + " not found");
-            }
-        }
-        boardRepository.deleteById(boardId);
-        changeLog.setUpdated_at(new Date());
-        changeLogRepository.save(changeLog);
     }
 
     @Override

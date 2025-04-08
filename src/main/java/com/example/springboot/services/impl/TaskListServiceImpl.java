@@ -45,17 +45,6 @@ public class TaskListServiceImpl implements TaskListService {
         newTaskList.setBoard(board);
         taskListRepository.save(newTaskList);
 
-        //Logging
-        String firstName;
-        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
-        ChangeLog changeLog = new ChangeLog();
-        changeLog.setEntityId(newTaskList.getId());
-        changeLog.setEntity("TaskList");
-        changeLog.setAction("create");
-        changeLog.setChangedBy(firstName);
-        changeLog.setCreated_at(new Date());
-        changeLogRepository.save(changeLog);
-
         return taskListRequestMapper.toTaskListDto(newTaskList);
     }
 
@@ -76,18 +65,6 @@ public class TaskListServiceImpl implements TaskListService {
             editTaskList.setTasks(taskList.getTasks());
         }
         taskListRepository.save(editTaskList);
-
-        //Logging
-        String firstName;
-        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
-        ChangeLog changeLog = new ChangeLog();
-        changeLog.setEntityId(editTaskList.getId());
-        changeLog.setEntity("TaskList");
-        changeLog.setAction("edit");
-        changeLog.setChangedBy(firstName);
-        changeLog.setUpdated_at(new Date());
-        changeLogRepository.save(changeLog);
-
         return taskListRequestMapper.toTaskListDto(editTaskList);
     }
 
@@ -99,14 +76,6 @@ public class TaskListServiceImpl implements TaskListService {
 
         TaskList taskList = taskListRepository.findById(taskListId).orElseThrow(() -> new EntityNotFoundException("Board with ID " + taskListId + " Not Found"));
         Board board = boardRepository.findById(taskList.getBoard().getId()).orElseThrow(() -> new EntityNotFoundException("Board with ID " + taskList.getBoard().getId() + " Not Found"));
-
-        ChangeLog changeLog = new ChangeLog();
-        changeLog.setEntityId(taskList.getId());
-        changeLog.setEntity("TaskList");
-        changeLog.setChangedBy(firstName);
-        changeLog.setAction("delete");
-        changeLog.setUpdated_at(new Date());
-        changeLogRepository.save(changeLog);
 
         taskListRepository.deleteById(taskListId);
     }
