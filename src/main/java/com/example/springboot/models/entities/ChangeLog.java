@@ -26,17 +26,8 @@ public class ChangeLog {
     private String action; // Тип изменения
     private String changedBy;
 
-    @Column(name = "attribute_names", columnDefinition = "TEXT")
-    private String attributeNames;
-
     @Column(columnDefinition = "TEXT")
     private String changes;
-
-    @Lob
-    private String oldValue;
-
-    @Lob
-    private String newValue;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
     private Date changedAt;

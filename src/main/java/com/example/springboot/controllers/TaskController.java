@@ -1,8 +1,9 @@
 package com.example.springboot.controllers;
 
+import com.example.springboot.models.dto.ChangeLogDto;
 import com.example.springboot.models.dto.TaskDto;
-import com.example.springboot.models.dto.TaskListDto;
 import com.example.springboot.models.entities.Task;
+import com.example.springboot.services.ChangeLogService;
 import com.example.springboot.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,8 @@ public class TaskController {
 
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private ChangeLogService changeLogService;
 
     @GetMapping("/tasks")
     public ResponseEntity<List<TaskDto>> getAllTasks(@RequestParam String sort) {
@@ -79,6 +82,12 @@ public class TaskController {
         taskService.updateTaskAssignees(taskId, ids);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/tasks/{taskId}/history")
+    public ResponseEntity<List<ChangeLogDto>> getTaskHistory(@PathVariable Long taskId, @RequestParam(name = "h", defaultValue = "all") String sort) {
+        List<ChangeLogDto> history = changeLogService.getTaskHistory(taskId, sort);
+        return ResponseEntity.ok(history);
     }
 
 }

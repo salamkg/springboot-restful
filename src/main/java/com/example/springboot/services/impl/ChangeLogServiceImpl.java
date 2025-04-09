@@ -1,5 +1,7 @@
 package com.example.springboot.services.impl;
 
+import com.example.springboot.mappers.ChangeLogMapper;
+import com.example.springboot.models.dto.ChangeLogDto;
 import com.example.springboot.models.entities.ChangeLog;
 import com.example.springboot.models.entities.Task;
 import com.example.springboot.models.entities.User;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -24,6 +27,8 @@ public class ChangeLogServiceImpl implements ChangeLogService {
     private ChangeLogRepository changeLogRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ChangeLogMapper changeLogMapper;
 
     public String makeChanges(Task newTask, Task oldTask) {
         //TODO realize Optimistic Locking, without blocking of edits from Users
@@ -62,29 +67,23 @@ public class ChangeLogServiceImpl implements ChangeLogService {
         boolean isChanged = false;
 
         if ("create".equals(action)) {
-            changeLog.setAttributeNames("all");
             changeLog.setChanges(changesJson);
             isChanged = true;
 
         } else if (oldTask != null && "edit".equals(action) || "delete".equals(action)) {
             if (newTask.getName() != null && !newTask.getName().equals(oldTask.getName())) {
-                changeLog.setAttributeNames("name"); //TODO remove or update attribute_names
                 isChanged = true;
             }
             if (newTask.getDescription() != null && !newTask.getDescription().equals(oldTask.getDescription())) {
-                changeLog.setAttributeNames("description");
                 isChanged = true;
             }
             if (newTask.getPosition() != null && !newTask.getPosition().equals(oldTask.getPosition())) {
-                changeLog.setAttributeNames("position");
                 isChanged = true;
             }
             if (newTask.getPriority() != null && !newTask.getPriority().equals(oldTask.getPriority())) {
-                changeLog.setAttributeNames("priority");
                 isChanged = true;
             }
             if (newTask.getStatus() != null && !newTask.getStatus().equals(oldTask.getStatus())) {
-                changeLog.setAttributeNames("status");
                 isChanged = true;
             }
         }
@@ -92,5 +91,13 @@ public class ChangeLogServiceImpl implements ChangeLogService {
         if (isChanged) {
             changeLogRepository.save(changeLog);
         }
+    }
+
+    @Override
+    public List<ChangeLogDto> getTaskHistory(Long taskId, String sort) {
+        return changeLogRepository.findAllByTaskId(taskId)
+                .stream()
+                .map(ch -> changeLogMapper.toChangeLogDto(ch))
+                .toList();
     }
 }
