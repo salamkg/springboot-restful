@@ -4,6 +4,7 @@ import com.example.springboot.mappers.TaskRequestMapper;
 import com.example.springboot.models.dto.TaskDto;
 import com.example.springboot.models.entities.*;
 import com.example.springboot.repositories.*;
+import com.example.springboot.services.ChangeLogService;
 import com.example.springboot.services.FileStorageService;
 import com.example.springboot.services.TaskService;
 import com.example.springboot.services.UserService;
@@ -29,8 +30,6 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private AttachmentRepository attachmentRepository;
     @Autowired
-    private ChangeLogRepository changeLogRepository;
-    @Autowired
     private FileStorageService fileStorageService;
     @Autowired
     private TaskRequestMapper taskRequestMapper;
@@ -38,6 +37,8 @@ public class TaskServiceImpl implements TaskService {
     private BoardRepository boardRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ChangeLogService changeLogService;
 
     @Override
     public TaskDto createTask(String name, String description, String priority, Long taskListId, List<Long> ids, List<MultipartFile> files) {
@@ -77,17 +78,19 @@ public class TaskServiceImpl implements TaskService {
             newTask.setAttachedFiles(fileList);
         }
         taskRepository.save(newTask);
-        saveChangeLog(newTask,null,"create");
+        changeLogService.saveChangeLog(newTask,null,"create");
 
         return taskRequestMapper.toTaskDto(newTask);
     }
 
     @Override
     public TaskDto editTask(Long taskId, Task task) {
+        Task editTask = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
         Task existingTask = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task with ID " + taskId + " not found"));
         TaskList taskList = taskListRepository.findByTasks_Id(taskId)
                 .orElseThrow(() -> new EntityNotFoundException("TaskList for Task with ID " + taskId + " not found"));
 
+        changeLogService.saveChangeLog(task, existingTask,"edit");
         boolean updated = false;
         if (task.getName() != null && !task.getName().equals(existingTask.getName())) {
             existingTask.setName(task.getName());
@@ -110,84 +113,11 @@ public class TaskServiceImpl implements TaskService {
             updated = true;
         }
 
-        saveChangeLog(task, existingTask,"edit");
         if (updated) {
             existingTask = taskRepository.save(existingTask);
         }
 
         return taskRequestMapper.toTaskDto(existingTask);
-    }
-
-    private void saveChangeLog(Task newTask, Task oldTask, String action) {
-        //TODO Improve to save only edited values
-        String firstName;
-        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
-        ChangeLog changeLog = new ChangeLog();
-        changeLog.setEntityId(newTask.getId());
-        changeLog.setEntityType("Task");
-
-        boolean isChanged = false;
-
-        if ("create".equals(action)) {
-            try {
-                Map<String, Map<String, String>> changes = new HashMap<>();
-                changes.put("name", Map.of("old", "","new", newTask.getName()));
-                changes.put("description", Map.of("old", "","new", newTask.getDescription()));
-                changes.put("status", Map.of("old", "","new", newTask.getStatus().toString()));
-                changes.put("priority", Map.of("old", "","new", newTask.getPriority()));
-                changes.put("assignees", Map.of("old", "","new", newTask.getAssignedUsers().stream().map(User::getUsername).toString()));
-                ObjectMapper objectMapper = new ObjectMapper();
-                String changesJson = objectMapper.writeValueAsString(changes);
-
-                changeLog.setAction(action);
-                changeLog.setEntityId(newTask.getId());
-                changeLog.setEntityType("Task");
-                changeLog.setAttributeNames("all");
-                changeLog.setChanges(changesJson);
-                changeLog.setChangedBy(newTask.getAuthor().getUsername());
-                changeLog.setChangedAt(new Date());
-                isChanged = true;
-            }
-            catch (Exception e) {
-                throw new EntityNotFoundException("Could not save changes");
-            }
-
-        } else if (oldTask != null && "edit".equals(action) || "delete".equals(action)) {
-            if (newTask.getName() != null && !newTask.getName().equals(oldTask.getName())) {
-                changeLog.setAttributeNames("name");
-                changeLog.setOldValue(oldTask.getName());
-                changeLog.setNewValue(newTask.getName());
-                isChanged = true;
-            }
-            if (newTask.getDescription() != null && !newTask.getDescription().equals(oldTask.getDescription())) {
-                changeLog.setAttributeNames("description");
-                changeLog.setOldValue(oldTask.getDescription());
-                changeLog.setNewValue(newTask.getDescription());
-                isChanged = true;
-            }
-            if (newTask.getPosition() != null && !newTask.getPosition().equals(oldTask.getPosition())) {
-                changeLog.setAttributeNames("position");
-                changeLog.setOldValue(String.valueOf(oldTask.getPosition()));
-                changeLog.setNewValue(String.valueOf(newTask.getPosition()));
-                isChanged = true;
-            }
-            if (newTask.getPriority() != null && !newTask.getPriority().equals(oldTask.getPriority())) {
-                changeLog.setAttributeNames("priority");
-                changeLog.setOldValue(oldTask.getPriority());
-                changeLog.setNewValue(newTask.getPriority());
-                isChanged = true;
-            }
-            if (newTask.getStatus() != null && !newTask.getStatus().equals(oldTask.getStatus())) {
-                changeLog.setAttributeNames("status");
-                changeLog.setOldValue(String.valueOf(oldTask.getStatus()));
-                changeLog.setNewValue(String.valueOf(newTask.getStatus()));
-                isChanged = true;
-            }
-        }
-
-        if (isChanged) {
-            changeLogRepository.save(changeLog);
-        }
     }
 
     @Override
@@ -219,7 +149,7 @@ public class TaskServiceImpl implements TaskService {
 
         setTaskStatusByPosition(newPosition, taskToUpdate);
         taskRepository.save(taskToUpdate);
-        saveChangeLog(taskToUpdate, null,"edit");
+        changeLogService.saveChangeLog(taskToUpdate, null,"edit");
     }
 
     @Override
