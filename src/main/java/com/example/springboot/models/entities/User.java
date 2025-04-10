@@ -55,6 +55,6 @@ public class User {
     @ManyToMany(mappedBy = "users")
     private Set<Board> boards = new HashSet<>();
 
-    @ManyToMany(mappedBy = "assignedUsers")
+    @ManyToMany(mappedBy = "assignedUsers", fetch = FetchType.EAGER)
     private List<Task> assignedTasks = new ArrayList<>();
 }

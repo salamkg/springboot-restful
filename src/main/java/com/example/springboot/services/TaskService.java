@@ -18,4 +18,5 @@ public interface TaskService {
     TaskDto getTaskById(Long id);
     void updateTaskPosition(Long taskId, Integer position);
     void updateTaskAssignees(Long taskId, List<Long> assigneeIds);
+    TaskDto changeTaskToSubTask(Long taskId, Long parentTaskId);
 }

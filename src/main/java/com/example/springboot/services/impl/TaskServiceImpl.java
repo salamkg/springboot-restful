@@ -134,6 +134,15 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public TaskDto changeTaskToSubTask(Long taskId, Long parentTaskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
+        Task parentTask = taskRepository.findById(parentTaskId).orElse(null);
+        task.setParentTask(parentTask);
+        taskRepository.save(task);
+        return taskRequestMapper.toTaskDto(task);
+    }
+
+    @Override
     public void updateTaskPosition(Long taskId, Integer newPosition) {
         Task taskToUpdate = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task Not Found"));
 

@@ -54,7 +54,7 @@ public class Task {
     @JoinColumn(name = "task_list_id")
     private TaskList taskList;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany()
     @JoinTable(name = "task_users", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> assignedUsers = new ArrayList<>();
 
@@ -72,7 +72,7 @@ public class Task {
     // startDate — дата начала выполнения задачи.
     // endDate — дата окончания задачи
 
-    @OneToMany(mappedBy = "parentTask")
+    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.REMOVE)
     private List<Task> subTasks = new ArrayList<>();
 
     @ManyToOne

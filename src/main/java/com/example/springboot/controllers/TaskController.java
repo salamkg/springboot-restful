@@ -90,4 +90,10 @@ public class TaskController {
         return ResponseEntity.ok(history);
     }
 
+    @PutMapping("/tasks/{taskId}/to-subtask")
+    public ResponseEntity<TaskDto> changeTaskToSubtask(@PathVariable Long taskId, @RequestParam(name = "parent") Long parentTaskId) {
+        TaskDto subTask = taskService.changeTaskToSubTask(taskId, parentTaskId);
+        return ResponseEntity.ok(subTask);
+    }
+
 }
