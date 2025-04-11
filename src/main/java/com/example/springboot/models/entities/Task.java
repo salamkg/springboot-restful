@@ -85,5 +85,8 @@ public class Task {
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "dependency_id")
     )
-    private List<Task> dependencies = new ArrayList<>();
+    private List<Task> dependencies = new ArrayList<>(); // Список зависимых задач
+
+    @ManyToMany(mappedBy = "dependencies")
+    private List<Task> dependentTasks = new ArrayList<>(); // Задачи, которые зависят от этой задачи
 }

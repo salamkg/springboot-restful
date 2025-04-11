@@ -194,6 +194,17 @@ public class TaskServiceImpl implements TaskService {
         return taskRequestMapper.toTaskDto(task);
     }
 
+    //TODO доделать
+    public boolean canBeStarted(Task task) {
+        List<Task> dependencies = task.getDependencies();
+        for (Task dependency : dependencies) {
+            if (!dependency.getStatus().equals(TaskStatus.COMPLETED)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void setTaskStatusByPosition(Integer position, Task task) {
         switch (position) {
             case 1:
