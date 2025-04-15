@@ -1,10 +1,7 @@
 package com.example.springboot.models.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -16,6 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "attachments")
+@Builder
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -66,15 +66,15 @@ public class TaskServiceImpl implements TaskService {
         }
 
         if (files != null && !files.isEmpty()) {
-            List<Attachment> fileList = new ArrayList<>();
-            for (MultipartFile file : files) {
-                Attachment attachment = new Attachment();
-                attachment.setTask(newTask);
-                attachment.setFilename(file.getOriginalFilename());
-                attachment.setFileType(file.getContentType());
-                attachment.setFilePath(fileStorageService.storeFile(file));
-                fileList.add(attachment);
-            }
+            List<Attachment> fileList = files.stream()
+                    .map(file -> Attachment.builder()
+                            .task(newTask)
+                            .filename(file.getOriginalFilename())
+                            .fileType(file.getContentType())
+                            .filePath(file.getOriginalFilename())
+                            .build()
+                    )
+                    .toList();
             newTask.setAttachedFiles(fileList);
         }
         taskRepository.save(newTask);
