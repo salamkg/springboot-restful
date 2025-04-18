@@ -6,13 +6,8 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 
 @Service
 public class TelegramService {
