@@ -5,6 +5,7 @@ import com.example.springboot.models.entities.Task;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -14,7 +15,7 @@ public interface TaskService {
     TaskDto editTask(Long taskId, Task task);
     void deleteTaskById(Long id);
     void deleteTasksById(List<Long> id);
-    List<TaskDto> getAllTasks(String sort);
+    List<TaskDto> getAllTasks(String sort) throws IOException;
     TaskDto getTaskById(Long id);
     void updateTaskPosition(Long taskId, Integer position);
     void updateTaskAssignees(Long taskId, List<Long> assigneeIds);

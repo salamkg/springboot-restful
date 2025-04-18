@@ -1,5 +1,6 @@
 package com.example.springboot.services.impl;
 
+import com.example.springboot.audit.TelegramService;
 import com.example.springboot.mappers.TaskRequestMapper;
 import com.example.springboot.models.dto.TaskDto;
 import com.example.springboot.models.entities.*;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +41,8 @@ public class TaskServiceImpl implements TaskService {
     private UserService userService;
     @Autowired
     private ChangeLogService changeLogService;
+    @Autowired
+    private TelegramService telegramService;
 
     @Override
     public TaskDto createTask(String name, String description, String priority, Long taskListId, List<Long> ids, List<MultipartFile> files) {
@@ -64,6 +68,12 @@ public class TaskServiceImpl implements TaskService {
                     .toList();
             newTask.setAssignedUsers(assignees);
         }
+
+        //Parsing text from photo
+//        for (MultipartFile file : files) {
+//            String result = ocrService.extractText(file);
+//            System.out.println(result);
+//        }
 
         if (files != null && !files.isEmpty()) {
             List<Attachment> fileList = files.stream()
@@ -181,10 +191,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getAllTasks(String sort) {
+    public List<TaskDto> getAllTasks(String sort) throws IOException {
         List<TaskDto> tasks = taskRepository.findAll(Sort.by(Sort.Direction.ASC, sort)).stream()
                 .map(task -> taskRequestMapper.toTaskDto(task))
                 .collect(Collectors.toList());
+        telegramService.send("hello");
         return tasks;
     }
 

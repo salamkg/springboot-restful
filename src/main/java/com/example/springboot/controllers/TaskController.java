@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -24,7 +25,7 @@ public class TaskController {
     private ChangeLogService changeLogService;
 
     @GetMapping("/tasks")
-    public ResponseEntity<List<TaskDto>> getAllTasks(@RequestParam String sort) {
+    public ResponseEntity<List<TaskDto>> getAllTasks(@RequestParam String sort) throws IOException {
         List<TaskDto> allTasks = taskService.getAllTasks(sort);
         return ResponseEntity.ok(allTasks);
     }
