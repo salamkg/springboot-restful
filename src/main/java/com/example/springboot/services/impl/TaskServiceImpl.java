@@ -195,7 +195,7 @@ public class TaskServiceImpl implements TaskService {
         List<TaskDto> tasks = taskRepository.findAll(Sort.by(Sort.Direction.ASC, sort)).stream()
                 .map(task -> taskRequestMapper.toTaskDto(task))
                 .collect(Collectors.toList());
-        telegramService.send("hello");
+        telegramService.send("Hello! This is message from Spring to Telegram");
         return tasks;
     }
 
