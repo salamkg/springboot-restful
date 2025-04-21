@@ -43,7 +43,7 @@ public class BoardServiceImpl implements BoardService {
         newBoard.setId(board.getId());
         newBoard.setName(board.getName());
         newBoard.setDescription(board.getDescription());
-        newBoard.getUsers().add(user);
+        newBoard.getMembers().add(user);
         boardRepository.save(newBoard);
 
         //Logging
@@ -61,8 +61,8 @@ public class BoardServiceImpl implements BoardService {
             editBoard.setDescription(board.getDescription());
         }
         //Get Board users to set username
-        List<User> users = getBoardUsers(editBoard.getUsers());
-        editBoard.setUsers(users);
+        List<User> users = getBoardUsers(editBoard.getMembers());
+        editBoard.setMembers(users);
 
         if (board.getTaskLists() != null) {
             editBoard.setTaskLists(board.getTaskLists());

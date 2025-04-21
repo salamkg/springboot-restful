@@ -31,8 +31,8 @@ public class Board {
 
     @ManyToMany
     @JoinTable(
-            name = "user_board",
+            name = "board_members",
             joinColumns = @JoinColumn(name = "board_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> users = new ArrayList<>();
+    private List<User> members = new ArrayList<>();
 }

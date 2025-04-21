@@ -52,7 +52,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "project_id")) // Внешний ключ для проекта
     private Set<Project> projects = new HashSet<>();
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "members")
     private Set<Board> boards = new HashSet<>();
 
     @ManyToMany(mappedBy = "assignedUsers", fetch = FetchType.EAGER)
