@@ -50,6 +50,7 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new RuntimeException("TaskList Not Found"));
         User author = userRepository.findByUsername(userService.getCurrentUser())
                 .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
+        if (!author.getRole().equals(UserRole.ADMIN)) throw new RuntimeException("You do not have admin role");
 
         Task newTask = new Task();
         newTask.setName(name);
@@ -68,12 +69,6 @@ public class TaskServiceImpl implements TaskService {
                     .toList();
             newTask.setAssignedUsers(assignees);
         }
-
-        //Parsing text from photo
-//        for (MultipartFile file : files) {
-//            String result = ocrService.extractText(file);
-//            System.out.println(result);
-//        }
 
         if (files != null && !files.isEmpty()) {
             List<Attachment> fileList = files.stream()
