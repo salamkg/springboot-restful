@@ -26,15 +26,4 @@ public class JwtExceptionHandler {
                 .body(response);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleException(HttpServletRequest req, Exception ex) throws Exception {
-        System.out.println("Global Exception Handle: " + ex.getMessage());
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", ex.getMessage());
-        response.put("timestamp", LocalDateTime.now().toString());
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(response);
-    }
-
 }

@@ -35,4 +35,8 @@ public class Board {
             joinColumns = @JoinColumn(name = "board_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> members = new ArrayList<>();
+
+    @ManyToOne()
+    @JoinColumn(name = "project_id")
+    private Project project;
 }
