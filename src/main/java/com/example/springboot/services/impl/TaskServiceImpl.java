@@ -5,13 +5,13 @@ import com.example.springboot.mappers.TaskRequestMapper;
 import com.example.springboot.models.dto.TaskDto;
 import com.example.springboot.models.entities.*;
 import com.example.springboot.repositories.*;
-import com.example.springboot.services.ChangeLogService;
-import com.example.springboot.services.FileStorageService;
-import com.example.springboot.services.TaskService;
-import com.example.springboot.services.UserService;
+import com.example.springboot.services.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +43,8 @@ public class TaskServiceImpl implements TaskService {
     private ChangeLogService changeLogService;
     @Autowired
     private TelegramService telegramService;
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public TaskDto createTask(String name, String description, String priority, Long taskListId, List<Long> ids, List<MultipartFile> files) {
@@ -83,6 +85,16 @@ public class TaskServiceImpl implements TaskService {
             newTask.setAttachedFiles(fileList);
         }
         taskRepository.save(newTask);
+        //TODO notification to be continued...
+        if (newTask.getAssignedUsers() != null) {
+            for (User user : newTask.getAssignedUsers()) {
+                notificationService.sendNotification(
+                        user,
+                        "New task assigned: " + newTask.getName(),
+                        "You are assigned as task performer"
+                );
+            }
+        }
         changeLogService.saveChangeLog(newTask,null,"create");
 
         return taskRequestMapper.toTaskDto(newTask);
@@ -190,8 +202,14 @@ public class TaskServiceImpl implements TaskService {
         List<TaskDto> tasks = taskRepository.findAll(Sort.by(Sort.Direction.ASC, sort)).stream()
                 .map(task -> taskRequestMapper.toTaskDto(task))
                 .collect(Collectors.toList());
-        telegramService.send("Hello! This is message from Spring to Telegram");
+//        telegramService.send("Hello! This is message from Spring to Telegram");
         return tasks;
+    }
+
+    @Override
+    public Page<TaskDto> getAllTasksPage(String sort, Pageable pageable) {
+        Page<Task> tasks = taskRepository.findAll(pageable);
+        return tasks.map(task -> taskRequestMapper.toTaskDto(task));
     }
 
     @Override

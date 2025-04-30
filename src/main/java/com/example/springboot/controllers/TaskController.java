@@ -6,6 +6,8 @@ import com.example.springboot.models.entities.Task;
 import com.example.springboot.services.ChangeLogService;
 import com.example.springboot.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +29,13 @@ public class TaskController {
     @GetMapping("/tasks")
     public ResponseEntity<List<TaskDto>> getAllTasks(@RequestParam String sort) throws IOException {
         List<TaskDto> allTasks = taskService.getAllTasks(sort);
+        return ResponseEntity.ok(allTasks);
+    }
+
+    //TODO Pageable testing to be continued...
+    @GetMapping("/all-tasks")
+    public ResponseEntity<Page<TaskDto>> getAllTasksPage(@RequestParam String sort, Pageable pageable) {
+        Page<TaskDto> allTasks = taskService.getAllTasksPage(sort, pageable);
         return ResponseEntity.ok(allTasks);
     }
 
