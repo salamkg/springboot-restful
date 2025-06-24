@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
         error.put("error", "Access denied");
         error.put("message", "You do not have permission to access this resource");
         error.put("timestamp", LocalDateTime.now().toString());
-        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN); //status 403
     }
 
     @ExceptionHandler(Exception.class)
@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
         response.put("message", ex.getMessage());
         response.put("timestamp", LocalDateTime.now().toString());
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.BAD_REQUEST) //status 400
                 .body(response);
     }
 }
