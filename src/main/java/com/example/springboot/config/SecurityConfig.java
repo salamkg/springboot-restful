@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/v1/**").permitAll()
                         .anyRequest().authenticated());
         http
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class TaskListServiceImpl implements TaskListService {
@@ -69,13 +70,21 @@ public class TaskListServiceImpl implements TaskListService {
     }
 
     @Override
+    public List<TaskListDto> getAllTaskLists(Long boardId) {
+        return taskListRepository.findAllByBoard_Id(boardId).stream()
+                .map(taskListRequestMapper::toTaskListDto)
+                .toList();
+
+    }
+
+    @Override
     public void deleteTaskListById(Long taskListId) {
         //Logging
         String firstName;
-        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
+//        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
 
-        TaskList taskList = taskListRepository.findById(taskListId).orElseThrow(() -> new EntityNotFoundException("Board with ID " + taskListId + " Not Found"));
-        Board board = boardRepository.findById(taskList.getBoard().getId()).orElseThrow(() -> new EntityNotFoundException("Board with ID " + taskList.getBoard().getId() + " Not Found"));
+        taskListRepository.findById(taskListId).orElseThrow(() -> new EntityNotFoundException("Board with ID " + taskListId + " Not Found"));
+//        Board board = boardRepository.findById(taskList.getBoard().getId()).orElseThrow(() -> new EntityNotFoundException("Board with ID " + taskList.getBoard().getId() + " Not Found"));
 
         taskListRepository.deleteById(taskListId);
     }

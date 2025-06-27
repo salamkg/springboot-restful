@@ -53,6 +53,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>1.18.38</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- Spring Boot Starter Security для аутентификации и авторизации -->
@@ -119,6 +120,7 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+							<version>1.18.38</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>

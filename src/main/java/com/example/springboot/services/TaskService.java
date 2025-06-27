@@ -14,10 +14,10 @@ import java.util.List;
 public interface TaskService {
 
     TaskDto createTask(String name, String description, String priority, Long taskListId, List<Long> ids,List<MultipartFile> files);
-    TaskDto editTask(Long taskId, Task task);
+    TaskDto editTask(Long taskListId, Long taskId, Task task);
     void deleteTaskById(Long id);
     void deleteTasksById(List<Long> id);
-    List<TaskDto> getAllTasks(String sort) throws IOException;
+    List<TaskDto> getAllTasks(Long taskListId, String sort) throws IOException;
     Page<TaskDto> getAllTasksPage(String sort, Pageable pageable);
     TaskDto getTaskById(Long id);
     void updateTaskPosition(Long taskId, Integer position);

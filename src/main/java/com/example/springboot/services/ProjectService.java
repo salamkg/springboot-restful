@@ -13,4 +13,6 @@ public interface ProjectService {
     List<ProjectDto> getRecentProjectsBySixMonth(String date);
 
     Project getProjectById(Long id);
+
+    List<ProjectDto> getAllProjects(String page, String sortKey, String sortOrder);
 }

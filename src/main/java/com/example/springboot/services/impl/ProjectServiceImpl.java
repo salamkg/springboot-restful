@@ -1,5 +1,8 @@
 package com.example.springboot.services.impl;
 
+import com.example.springboot.mappers.BoardRequestMapper;
+import com.example.springboot.mappers.ProjectMapper;
+import com.example.springboot.mappers.UserRequestMapper;
 import com.example.springboot.models.dto.CommentDto;
 import com.example.springboot.models.dto.ProjectDto;
 import com.example.springboot.models.dto.TaskDto;
@@ -27,6 +30,12 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private BoardRequestMapper boardRequestMapper;
+    @Autowired
+    private UserRequestMapper userRequestMapper;
+    @Autowired
+    private ProjectMapper projectMapper;
 
 
     @Override
@@ -87,14 +96,30 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.findRecentProjects(pasredDate).stream()
                 .map(project -> new ProjectDto(
                         project.getId(),
-                        project.getTitle(),
-                        project.getDescription(),
-                        null
+                        project.getName(),
+                        project.getType(),
+                        project.getKey(),
+                        project.getBoards().stream()
+                                .map(board -> boardRequestMapper.toBoardDto(board))
+                                .toList(),
+                        project.getPeople().stream()
+                                .map(people -> userRequestMapper.toUserDto(people))
+                                .toList(),
+                        userRequestMapper.toUserDto(project.getLead())
                 )).collect(Collectors.toList());
     }
 
     @Override
     public Project getProjectById(Long id) {
         return projectRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<ProjectDto> getAllProjects(String page, String sortKey, String sortOrder) {
+        List<Project> projectsList = projectRepository.findAll();
+        List<ProjectDto> projectDtoList = projectsList.stream()
+                .map(project -> projectMapper.toDTO(project))
+                .toList();
+        return projectDtoList;
     }
 }

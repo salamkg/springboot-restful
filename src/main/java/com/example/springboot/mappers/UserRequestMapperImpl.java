@@ -4,7 +4,9 @@ import com.example.springboot.models.dto.UserDto;
 import com.example.springboot.models.entities.User;
 import com.example.springboot.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserRequestMapperImpl implements UserRequestMapper {
     @Autowired
     private UserRepository userRepository;

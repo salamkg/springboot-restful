@@ -50,9 +50,9 @@ public class TaskServiceImpl implements TaskService {
     public TaskDto createTask(String name, String description, String priority, Long taskListId, List<Long> ids, List<MultipartFile> files) {
         TaskList taskList = taskListRepository.findById(taskListId)
                 .orElseThrow(() -> new RuntimeException("TaskList Not Found"));
-        User author = userRepository.findByUsername(userService.getCurrentUser())
-                .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
-        if (!author.getRole().equals(UserRole.ADMIN)) throw new RuntimeException("You do not have admin role");
+//        User author = userRepository.findByUsername(userService.getCurrentUser())
+//                .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
+//        if (!author.getRole().equals(UserRole.ADMIN)) throw new RuntimeException("You do not have admin role");
 
         Task newTask = new Task();
         newTask.setName(name);
@@ -60,7 +60,7 @@ public class TaskServiceImpl implements TaskService {
         newTask.setStatus(TaskStatus.NEW);
         newTask.setPosition(1);
         newTask.setPriority(priority);
-        newTask.setAuthor(author);
+//        newTask.setAuthor(author);
         newTask.setBoard(taskList.getBoard());
         newTask.setTaskList(taskList);
 
@@ -95,46 +95,43 @@ public class TaskServiceImpl implements TaskService {
                 );
             }
         }
-        changeLogService.saveChangeLog(newTask,null,"create");
+//        changeLogService.saveChangeLog(newTask,null,"create");
 
         return taskRequestMapper.toTaskDto(newTask);
     }
 
     @Override
-    public TaskDto editTask(Long taskId, Task task) {
+    public TaskDto editTask(Long taskListId, Long taskId, Task task) {
         Task editTask = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
-        Task existingTask = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task with ID " + taskId + " not found"));
-        TaskList taskList = taskListRepository.findByTasks_Id(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("TaskList for Task with ID " + taskId + " not found"));
 
-        changeLogService.saveChangeLog(task, existingTask,"edit");
+//        changeLogService.saveChangeLog(task, editTask,"edit");
         boolean updated = false;
-        if (task.getName() != null && !task.getName().equals(existingTask.getName())) {
-            existingTask.setName(task.getName());
+        if (task.getName() != null && !task.getName().equals(editTask.getName())) {
+            editTask.setName(task.getName());
             updated = true;
         }
-        if (task.getDescription() != null && !task.getDescription().equals(existingTask.getDescription())) {
-            existingTask.setDescription(task.getDescription());
+        if (task.getDescription() != null && !task.getDescription().equals(editTask.getDescription())) {
+            editTask.setDescription(task.getDescription());
             updated = true;
         }
-        if (task.getStatus() != null && !task.getStatus().equals(existingTask.getStatus())) {
-            existingTask.setStatus(task.getStatus());
+        if (task.getStatus() != null && !task.getStatus().equals(editTask.getStatus())) {
+            editTask.setStatus(task.getStatus());
             updated = true;
         }
-        if (task.getPriority() != null && !task.getPriority().equals(existingTask.getPriority())) {
-            existingTask.setPriority(task.getPriority());
+        if (task.getPriority() != null && !task.getPriority().equals(editTask.getPriority())) {
+            editTask.setPriority(task.getPriority());
             updated = true;
         }
-        if (task.getComments() != null && !task.getComments().equals(existingTask.getComments())) {
-            existingTask.setComments(task.getComments());
+        if (task.getComments() != null && !task.getComments().equals(editTask.getComments())) {
+            editTask.setComments(task.getComments());
             updated = true;
         }
 
         if (updated) {
-            existingTask = taskRepository.save(existingTask);
+            editTask = taskRepository.save(editTask);
         }
 
-        return taskRequestMapper.toTaskDto(existingTask);
+        return taskRequestMapper.toTaskDto(editTask);
     }
 
     @Override
@@ -181,16 +178,16 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void deleteTaskById(Long id) {
         //Logging
-        String firstName;
-        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
+//        String firstName;
+//        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
         taskRepository.deleteById(id);
     }
 
     @Override
     public void deleteTasksById(List<Long> ids) {
         //Logging
-        String firstName;
-        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
+//        String firstName;
+//        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
 
         for (Long id: ids) {
             taskRepository.deleteById(id);
@@ -198,12 +195,17 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getAllTasks(String sort) throws IOException {
-        List<TaskDto> tasks = taskRepository.findAll(Sort.by(Sort.Direction.ASC, sort)).stream()
+    public List<TaskDto> getAllTasks(Long taskListId, String sort) throws IOException {
+        List<TaskDto> taskDtoList = taskRepository.findAllByTaskList_Id(taskListId).stream()
                 .map(task -> taskRequestMapper.toTaskDto(task))
-                .collect(Collectors.toList());
+                .toList();
+        return taskDtoList;
+
+//        List<TaskDto> tasks = taskRepository.findAll(Sort.by(Sort.Direction.ASC, sort)).stream()
+//                .map(task -> taskRequestMapper.toTaskDto(task))
+//                .collect(Collectors.toList());
 //        telegramService.send("Hello! This is message from Spring to Telegram");
-        return tasks;
+//        return tasks;
     }
 
     @Override

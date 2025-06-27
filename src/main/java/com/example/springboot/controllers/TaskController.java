@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/lists")
+@RequestMapping("/api/v1/lists")
 public class TaskController {
 
     @Autowired
@@ -26,9 +26,9 @@ public class TaskController {
     @Autowired
     private ChangeLogService changeLogService;
 
-    @GetMapping("/tasks")
-    public ResponseEntity<List<TaskDto>> getAllTasks(@RequestParam String sort) throws IOException {
-        List<TaskDto> allTasks = taskService.getAllTasks(sort);
+    @GetMapping("{taskListId}/tasks")
+    public ResponseEntity<List<TaskDto>> getAllTasks(@PathVariable Long taskListId, @RequestParam(required = false) String sort) throws IOException {
+        List<TaskDto> allTasks = taskService.getAllTasks(taskListId, sort);
         return ResponseEntity.ok(allTasks);
     }
 
@@ -47,8 +47,8 @@ public class TaskController {
 
     @PostMapping(value = "/{taskListId}/task/create", consumes = "multipart/form-data")
     public ResponseEntity<TaskDto> createTask(@RequestParam String name,
-                                              @RequestParam String description,
-                                              @RequestParam String priority,
+                                              @RequestParam(required = false) String description,
+                                              @RequestParam(required = false) String priority,
                                               @PathVariable Long taskListId,
                                               @RequestParam(name = "ids", required = false) List<Long> ids,
                                               @RequestParam(name = "file", required = false) List<MultipartFile> files
@@ -58,20 +58,21 @@ public class TaskController {
         return ResponseEntity.ok(newTask);
     }
 
-    @PutMapping(path = "/task/{taskId}/edit")
-    public ResponseEntity<TaskDto> updateTask(@PathVariable Long taskId, @RequestBody Task task) {
-        TaskDto editedTask = taskService.editTask(taskId, task);
+    @PutMapping("{taskListId}/tasks/{taskId}/edit")
+    public ResponseEntity<TaskDto> updateTask(@PathVariable Long taskListId,
+                                              @PathVariable Long taskId, @RequestBody Task task) {
+        TaskDto editedTask = taskService.editTask(taskListId, taskId, task);
         return ResponseEntity.ok(editedTask);
     }
 
-    @DeleteMapping(path = "/tasks/{id}/remove")
-    @PreAuthorize("hasAnyAuthority('ADMIN')") // Only for ADMIN
+    @DeleteMapping("/tasks/{id}/remove")
+//    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<Task> deleteTask(@PathVariable Long id) {
         taskService.deleteTaskById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping(path = "/tasks/remove")
+    @DeleteMapping("/tasks/remove")
     @PreAuthorize("hasAnyAuthority('ADMIN')") // Only for ADMIN
     public ResponseEntity<Task> deleteTasks(@RequestBody List<Long> ids) {
         taskService.deleteTasksById(ids);

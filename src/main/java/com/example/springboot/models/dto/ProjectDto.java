@@ -1,32 +1,21 @@
 package com.example.springboot.models.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ProjectDto {
 
     private Long id;
-    private String title;
-    private String description;
-    private TaskDto[] tasks;
-
-//    private boolean includeTasks;
-//
-//    public TaskDto[] getTasks() {
-//        if (includeTasks) {
-//            return tasks;
-//        }
-//        return null;
-//    }
-//
-//    public void setIncludeTasks(boolean includeTasks) {
-//        this.includeTasks = includeTasks;
-//    }
-
+    private String name;
+    private String key;
+    private String type;
+    private List<BoardDto> boards;
+    private List<UserDto> people;
+    private UserDto lead;
 }

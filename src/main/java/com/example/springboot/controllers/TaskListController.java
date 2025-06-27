@@ -1,27 +1,30 @@
 package com.example.springboot.controllers;
 
-import com.example.springboot.models.dto.BoardDto;
-import com.example.springboot.models.dto.TaskDto;
 import com.example.springboot.models.dto.TaskListDto;
-import com.example.springboot.models.entities.Board;
-import com.example.springboot.models.entities.Task;
 import com.example.springboot.models.entities.TaskList;
-import com.example.springboot.services.BoardService;
 import com.example.springboot.services.TaskListService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/boards")
+@RequestMapping("/api/v1/boards")
 public class TaskListController {
 
+    @Autowired
     private TaskListService taskListService;
 
 //    @Autowired
     public TaskListController(TaskListService taskListService) {
         this.taskListService = taskListService;
+    }
+
+    @GetMapping("/{boardId}/lists")
+    public ResponseEntity<List<TaskListDto>> getTaskLists(@PathVariable Long boardId) {
+        List<TaskListDto> taskListDtoList = taskListService.getAllTaskLists(boardId);
+        return ResponseEntity.ok(taskListDtoList);
     }
 
     @PostMapping("/{boardId}/list/create")
@@ -32,7 +35,7 @@ public class TaskListController {
         return ResponseEntity.ok(newTaskList);
     }
 
-    @PutMapping("/{boardId}/list/{taskListId}/edit")
+    @PatchMapping("/{boardId}/lists/{taskListId}/edit")
     public ResponseEntity<TaskListDto> editTaskList(@PathVariable Long boardId,
                                                     @PathVariable Long taskListId,
                                                     @RequestBody TaskList taskList) {

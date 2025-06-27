@@ -16,4 +16,6 @@ public interface TaskListService {
     void deleteTaskListById(Long taskListId);
 
     TaskListDto updateTaskList(Long boardId, Long taskListId, TaskList taskList);
+
+    List<TaskListDto> getAllTaskLists(Long boardId);
 }
