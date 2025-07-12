@@ -1,7 +1,7 @@
 package com.example.springboot.repositories;
 
 import com.example.springboot.models.entities.Task;
-import com.example.springboot.models.entities.TaskStatus;
+import com.example.springboot.models.enums.TaskStatus;
 import com.example.springboot.services.TaskService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -44,6 +46,9 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     // Найти проекты, созданные в последние 6 месяцев
 
     @Query("select p from Project p " +
-            "where p.createdDate >= :sixMonthAgo")
+            "where p.createdAt >= :sixMonthAgo")
     List<Project> findRecentProjects(LocalDate sixMonthAgo);
+
+    List<Project> findByIsDeletedTrueAndIsDeletedAtBefore(LocalDateTime isDeletedAtBefore);
+
 }

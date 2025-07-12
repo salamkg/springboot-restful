@@ -1,6 +1,8 @@
 package com.example.springboot.controllers;
 
+import com.example.springboot.models.dto.BoardDto;
 import com.example.springboot.models.dto.ProjectDto;
+import com.example.springboot.models.dto.ProjectRequestDto;
 import com.example.springboot.services.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +23,7 @@ public class ProjectController {
                                                            @RequestParam(name = "sortKey", defaultValue = "name", required = false) String sortKey,
                                                            @RequestParam(name = "sortOrder", defaultValue = "ASC", required = false) String sortOrder) {
         List<ProjectDto> projectDtoList = projectService.getAllProjects(page, sortKey, sortOrder);
-        return new ResponseEntity<>(projectDtoList, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(projectDtoList);
     }
 
     @GetMapping("/{userId}")
@@ -43,5 +45,29 @@ public class ProjectController {
         List<ProjectDto> projects = projectService.getRecentProjectsBySixMonth(date);
 
         return ResponseEntity.ok().body(projects);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createProject(@RequestBody ProjectRequestDto projectDto) {
+        projectService.create(projectDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectDto);
+    }
+
+    @GetMapping("/{key}/boards/{projectId}")
+    public ResponseEntity<ProjectDto> getProject(@PathVariable Long projectId, @PathVariable(required = false) String key) {
+        ProjectDto projectDto = projectService.getProjectById(projectId);
+        return ResponseEntity.ok(projectDto);
+    }
+
+    @PutMapping("/{id}/edit")
+    public ResponseEntity<?> editProject(@PathVariable Long id, @RequestBody ProjectRequestDto projectDto) {
+        projectService.editProject(id, projectDto);
+        return ResponseEntity.ok().body(projectDto);
+    }
+
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<?> deleteProject(@PathVariable Long id) {
+        projectService.deleteProject(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

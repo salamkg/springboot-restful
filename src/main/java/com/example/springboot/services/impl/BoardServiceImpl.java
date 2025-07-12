@@ -5,6 +5,7 @@ import com.example.springboot.mappers.TaskListRequestMapper;
 import com.example.springboot.models.dto.BoardDto;
 import com.example.springboot.models.dto.TaskListDto;
 import com.example.springboot.models.entities.*;
+import com.example.springboot.models.enums.TaskStatus;
 import com.example.springboot.repositories.BoardRepository;
 import com.example.springboot.repositories.ChangeLogRepository;
 import com.example.springboot.repositories.TaskListRepository;

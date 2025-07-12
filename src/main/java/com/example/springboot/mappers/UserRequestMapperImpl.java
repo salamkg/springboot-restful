@@ -12,6 +12,17 @@ public class UserRequestMapperImpl implements UserRequestMapper {
     private UserRepository userRepository;
 
     @Override
+    public User toUser(UserDto userDto) {
+        if (userDto == null) {
+            return null;
+        }
+        return User.builder()
+                .username(userDto.getUsername())
+                .age(userDto.getAge())
+                .build();
+    }
+
+    @Override
     public UserDto toUserDto(User user) {
         if (user == null) {
             return null;

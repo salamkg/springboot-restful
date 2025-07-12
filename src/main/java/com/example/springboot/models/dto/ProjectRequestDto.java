@@ -10,14 +10,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProjectDto {
+public class ProjectRequestDto {
 
     private String name;
     private String key;
     private ProjectType type;
     private Boolean isAvailable = true;
-    private List<BoardDto> boards;
-    private List<UserDto> people;
+//    private List<BoardDto> boards;
+//    private List<UserDto> people;
     private UserDto lead;
     private Boolean isDeleted;
 }

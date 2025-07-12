@@ -1,6 +1,7 @@
 package com.example.springboot.services;
 
 import com.example.springboot.models.dto.ProjectDto;
+import com.example.springboot.models.dto.ProjectRequestDto;
 import com.example.springboot.models.entities.Project;
 
 import java.time.LocalDate;
@@ -12,7 +13,15 @@ public interface ProjectService {
     List<ProjectDto> getNotCompletedProjectsByUserId(Long userId);
     List<ProjectDto> getRecentProjectsBySixMonth(String date);
 
-    Project getProjectById(Long id);
+    ProjectDto getProjectById(Long id);
 
     List<ProjectDto> getAllProjects(String page, String sortKey, String sortOrder);
+
+    void create(ProjectRequestDto projectDto);
+
+    void editProject(Long id, ProjectRequestDto projectDto);
+
+    void deleteProject(Long id);
+
+    void deleteOldProjects();
 }

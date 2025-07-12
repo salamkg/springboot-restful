@@ -1,6 +1,5 @@
 package com.example.springboot.models.dto;
 
-import com.example.springboot.models.entities.TaskStatus;
 import lombok.*;
 
 @Getter

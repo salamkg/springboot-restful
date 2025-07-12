@@ -1,5 +1,6 @@
 package com.example.springboot.models.entities;
 
+import com.example.springboot.models.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -50,11 +51,15 @@ public class User {
             name = "user_project", // промежуточная таблица
             joinColumns = @JoinColumn(name = "user_id"), // Внешний ключ для пользователя
             inverseJoinColumns = @JoinColumn(name = "project_id")) // Внешний ключ для проекта
-    private Set<Project> projects = new HashSet<>();
+    private List<Project> projects = new ArrayList<>();
 
     @ManyToMany(mappedBy = "members")
     private Set<Board> boards = new HashSet<>();
 
-    @ManyToMany(mappedBy = "assignedUsers", fetch = FetchType.EAGER)
-    private List<Task> assignedTasks = new ArrayList<>();
+//    @ManyToMany(mappedBy = "assignedUsers", fetch = FetchType.EAGER)
+//    private List<Task> assignedTasks = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
 }

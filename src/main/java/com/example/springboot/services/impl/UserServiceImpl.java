@@ -1,6 +1,6 @@
 package com.example.springboot.services.impl;
 
-import com.example.springboot.models.entities.UserRole;
+import com.example.springboot.models.enums.UserRole;
 import com.example.springboot.models.entities.User;
 import com.example.springboot.repositories.UserRepository;
 import com.example.springboot.services.UserService;

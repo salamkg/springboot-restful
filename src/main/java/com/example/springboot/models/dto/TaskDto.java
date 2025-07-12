@@ -1,6 +1,6 @@
 package com.example.springboot.models.dto;
 
-import com.example.springboot.models.entities.TaskStatus;
+import com.example.springboot.models.enums.TaskStatus;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 

@@ -3,10 +3,7 @@ package com.example.springboot.services.impl;
 import com.example.springboot.mappers.BoardRequestMapper;
 import com.example.springboot.mappers.ProjectMapper;
 import com.example.springboot.mappers.UserRequestMapper;
-import com.example.springboot.models.dto.CommentDto;
-import com.example.springboot.models.dto.ProjectDto;
-import com.example.springboot.models.dto.TaskDto;
-import com.example.springboot.models.dto.TaskListDto;
+import com.example.springboot.models.dto.*;
 import com.example.springboot.models.entities.Comment;
 import com.example.springboot.models.entities.Project;
 import com.example.springboot.models.entities.Task;
@@ -18,10 +15,13 @@ import com.example.springboot.repositories.UserRepository;
 import com.example.springboot.services.CommentService;
 import com.example.springboot.services.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -93,25 +93,14 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<ProjectDto> getRecentProjectsBySixMonth(String date) {
         LocalDate pasredDate = LocalDate.parse(date);
-        return projectRepository.findRecentProjects(pasredDate).stream()
-                .map(project -> new ProjectDto(
-                        project.getId(),
-                        project.getName(),
-                        project.getType(),
-                        project.getKey(),
-                        project.getBoards().stream()
-                                .map(board -> boardRequestMapper.toBoardDto(board))
-                                .toList(),
-                        project.getPeople().stream()
-                                .map(people -> userRequestMapper.toUserDto(people))
-                                .toList(),
-                        userRequestMapper.toUserDto(project.getLead())
-                )).collect(Collectors.toList());
+        return null;
     }
 
     @Override
-    public Project getProjectById(Long id) {
-        return projectRepository.findById(id).orElse(null);
+    public ProjectDto getProjectById(Long id) {
+        Project project = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found"));
+        ProjectDto projectDto = projectMapper.toDTO(project);
+        return projectDto;
     }
 
     @Override
@@ -121,5 +110,46 @@ public class ProjectServiceImpl implements ProjectService {
                 .map(project -> projectMapper.toDTO(project))
                 .toList();
         return projectDtoList;
+    }
+
+    @Override
+    public void create(ProjectRequestDto projectDto) {
+        Project project = projectMapper.toProject(projectDto);
+        projectRepository.save(project);
+    }
+
+    @Override
+    public void editProject(Long id, ProjectRequestDto projectDto) {
+        Project project = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found"));
+
+        if(projectDto.getKey() != null) {
+            project.setKey(projectDto.getKey());
+        }
+        if(projectDto.getName() != null) {
+            project.setKey(projectDto.getKey());
+        }
+        if(projectDto.getType() != null) {
+            project.setType(projectDto.getType());
+        }
+        if(projectDto.getLead() != null) {
+            project.setLead(userRequestMapper.toUser(projectDto.getLead()));
+        }
+        projectRepository.save(project);
+    }
+
+    @Override
+    public void deleteProject(Long id) {
+        Project project = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found"));
+        project.setIsDeleted(true);
+        project.setIsDeletedAt(LocalDateTime.now());
+        projectRepository.save(project);
+    }
+
+    @Override
+    @Scheduled(cron = "0 0 2 * * *")
+    public void deleteOldProjects() {
+        LocalDateTime cutoffDate = LocalDateTime.now().minusDays(2);
+        List<Project> toDelete = projectRepository.findByIsDeletedTrueAndIsDeletedAtBefore(cutoffDate);
+        projectRepository.deleteAll(toDelete);
     }
 }

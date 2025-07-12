@@ -4,15 +4,13 @@ import com.example.springboot.audit.TelegramService;
 import com.example.springboot.mappers.TaskRequestMapper;
 import com.example.springboot.models.dto.TaskDto;
 import com.example.springboot.models.entities.*;
+import com.example.springboot.models.enums.TaskStatus;
 import com.example.springboot.repositories.*;
 import com.example.springboot.services.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
