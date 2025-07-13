@@ -24,7 +24,7 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private TaskRepository taskRepository;
     @Autowired
-    private TaskListRepository taskListRepository;
+    private BoardColumnRepository boardColumnRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -46,11 +46,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDto createTask(String name, String description, String priority, Long taskListId, List<Long> ids, List<MultipartFile> files) {
-        TaskList taskList = taskListRepository.findById(taskListId)
+        BoardColumn boardColumn = boardColumnRepository.findById(taskListId)
                 .orElseThrow(() -> new RuntimeException("TaskList Not Found"));
-//        User author = userRepository.findByUsername(userService.getCurrentUser())
-//                .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
-//        if (!author.getRole().equals(UserRole.ADMIN)) throw new RuntimeException("You do not have admin role");
 
         Task newTask = new Task();
         newTask.setName(name);
@@ -59,8 +56,8 @@ public class TaskServiceImpl implements TaskService {
         newTask.setPosition(1);
         newTask.setPriority(priority);
 //        newTask.setAuthor(author);
-        newTask.setBoard(taskList.getBoard());
-        newTask.setTaskList(taskList);
+        newTask.setBoard(boardColumn.getBoard());
+        newTask.setBoardColumn(boardColumn);
 
         if (ids != null && !ids.isEmpty()) {
             List<User> assignees = userRepository.findAllById(ids)
@@ -194,7 +191,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDto> getAllTasks(Long taskListId, String sort) throws IOException {
-        List<TaskDto> taskDtoList = taskRepository.findAllByTaskList_Id(taskListId).stream()
+        List<TaskDto> taskDtoList = taskRepository.findAllByBoardColumn_Id(taskListId).stream()
                 .map(task -> taskRequestMapper.toTaskDto(task))
                 .toList();
         return taskDtoList;

@@ -1,9 +1,7 @@
 package com.example.springboot.services;
 
-import com.example.springboot.models.dto.BoardDto;
-import com.example.springboot.models.dto.TaskListDto;
-import com.example.springboot.models.entities.Board;
-import com.example.springboot.models.entities.TaskList;
+import com.example.springboot.models.dto.BoardColumnDTO;
+import com.example.springboot.models.entities.BoardColumn;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,11 +9,11 @@ import java.util.List;
 @Service
 public interface TaskListService {
 
-    TaskListDto createTaskList(Long boardId, TaskList taskList);
+    BoardColumnDTO createTaskList(Long boardId, BoardColumn boardColumn);
 
     void deleteTaskListById(Long taskListId);
 
-    TaskListDto updateTaskList(Long boardId, Long taskListId, TaskList taskList);
+    BoardColumnDTO updateTaskList(Long boardId, Long taskListId, BoardColumn boardColumn);
 
-    List<TaskListDto> getAllTaskLists(Long boardId);
+    List<BoardColumnDTO> getAllTaskLists(Long boardId);
 }

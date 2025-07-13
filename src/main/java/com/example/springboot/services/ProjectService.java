@@ -24,4 +24,6 @@ public interface ProjectService {
     void deleteProject(Long id);
 
     void deleteOldProjects();
+
+    void addPeople(Long projectId, String email);
 }

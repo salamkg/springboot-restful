@@ -1,7 +1,7 @@
 package com.example.springboot.controllers;
 
-import com.example.springboot.models.dto.TaskListDto;
-import com.example.springboot.models.entities.TaskList;
+import com.example.springboot.models.dto.BoardColumnDTO;
+import com.example.springboot.models.entities.BoardColumn;
 import com.example.springboot.services.TaskListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,25 +22,25 @@ public class TaskListController {
     }
 
     @GetMapping("/{boardId}/lists")
-    public ResponseEntity<List<TaskListDto>> getTaskLists(@PathVariable Long boardId) {
-        List<TaskListDto> taskListDtoList = taskListService.getAllTaskLists(boardId);
+    public ResponseEntity<List<BoardColumnDTO>> getTaskLists(@PathVariable Long boardId) {
+        List<BoardColumnDTO> taskListDtoList = taskListService.getAllTaskLists(boardId);
         return ResponseEntity.ok(taskListDtoList);
     }
 
     @PostMapping("/{boardId}/list/create")
-    public ResponseEntity<TaskListDto> createTaskList(@PathVariable Long boardId,
-                                                      @RequestBody TaskList taskList) {
+    public ResponseEntity<BoardColumnDTO> createTaskList(@PathVariable Long boardId,
+                                                         @RequestBody BoardColumn boardColumn) {
 
-        TaskListDto newTaskList = taskListService.createTaskList(boardId, taskList);
+        BoardColumnDTO newTaskList = taskListService.createTaskList(boardId, boardColumn);
         return ResponseEntity.ok(newTaskList);
     }
 
     @PatchMapping("/{boardId}/lists/{taskListId}/edit")
-    public ResponseEntity<TaskListDto> editTaskList(@PathVariable Long boardId,
-                                                    @PathVariable Long taskListId,
-                                                    @RequestBody TaskList taskList) {
+    public ResponseEntity<BoardColumnDTO> editTaskList(@PathVariable Long boardId,
+                                                       @PathVariable Long taskListId,
+                                                       @RequestBody BoardColumn boardColumn) {
 
-        TaskListDto newTaskList = taskListService.updateTaskList(boardId, taskListId, taskList);
+        BoardColumnDTO newTaskList = taskListService.updateTaskList(boardId, taskListId, boardColumn);
         return ResponseEntity.ok(newTaskList);
     }
 

@@ -19,7 +19,6 @@ public class ProjectMapperImpl implements ProjectMapper {
                 .name(projectDto.getName())
                 .type(projectDto.getType())
                 .key(projectDto.getKey())
-                .lead(userRequestMapper.toUser(projectDto.getLead()))
                 .isDeleted(projectDto.getIsDeleted())
                 .build();
     }

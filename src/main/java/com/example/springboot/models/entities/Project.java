@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -36,13 +35,18 @@ public class Project {
     private List<Board> boards = new ArrayList<>();
 
     // TODO Добавление пользователей в проект
-    @OneToMany(mappedBy = "project")
+    @ManyToMany
+    @JoinTable(
+            name = "user_project",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private List<User> people = new ArrayList<>();
 
     // TODO менеджер проекта
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User lead;
+//    @ManyToOne
+//    @JoinColumn(name = "user_id")
+//    private User lead;
 
     // TODO при удалении проект = TRUE и удаляется безвозвратно через x дней
     private Boolean isDeleted = Boolean.FALSE;

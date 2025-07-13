@@ -1,6 +1,7 @@
 package com.example.springboot.models.entities;
 
 import com.example.springboot.models.enums.UserRole;
+import com.example.springboot.models.enums.UserStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -32,7 +33,10 @@ public class User {
     @Email
     private String email;
 
-    @NotEmpty
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
+//    @NotEmpty
     @Size(min = 3, message = "Password should have min 3 characters")
     private String password;
 
@@ -46,20 +50,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")) // Внешний ключ для роли
     private Set<Role> roles;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_project", // промежуточная таблица
-            joinColumns = @JoinColumn(name = "user_id"), // Внешний ключ для пользователя
-            inverseJoinColumns = @JoinColumn(name = "project_id")) // Внешний ключ для проекта
+    //TODO 1 user <-> N project
+    @ManyToMany(mappedBy = "people")
     private List<Project> projects = new ArrayList<>();
-
-    @ManyToMany(mappedBy = "members")
-    private Set<Board> boards = new HashSet<>();
-
-//    @ManyToMany(mappedBy = "assignedUsers", fetch = FetchType.EAGER)
-//    private List<Task> assignedTasks = new ArrayList<>();
-
-    @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
 }

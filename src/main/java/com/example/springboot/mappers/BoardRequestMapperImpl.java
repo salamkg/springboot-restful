@@ -11,15 +11,8 @@ public class BoardRequestMapperImpl implements BoardRequestMapper {
 
     @Override
     public BoardDto toBoardDto(Board board) {
-        if (board == null) {
-            return null;
-        }
+        if (board == null) return null;
 
-        BoardDto.BoardDtoBuilder boardDto = BoardDto.builder();
-        boardDto.id(board.getId());
-        boardDto.name(board.getName());
-        boardDto.description(board.getDescription());
-
-        return boardDto.build();
+        return BoardDto.builder().build();
     }
 }

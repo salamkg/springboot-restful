@@ -3,20 +3,19 @@ package com.example.springboot.mappers;
 import com.example.springboot.models.dto.CommentDto;
 import com.example.springboot.models.dto.TaskDto;
 import com.example.springboot.models.entities.Task;
-import com.example.springboot.models.entities.TaskList;
-import com.example.springboot.repositories.TaskListRepository;
+import com.example.springboot.models.entities.BoardColumn;
+import com.example.springboot.repositories.BoardColumnRepository;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 
 @Component
 public class TaskRequestMapperImpl implements TaskRequestMapper {
-    private final TaskListRepository taskListRepository;
-    private final TaskListRequestMapper taskListRequestMapper;
+    private final BoardColumnRepository boardColumnRepository;
+    private final BoardColumnRequestMapper boardColumnRequestMapper;
 
-    public TaskRequestMapperImpl(TaskListRepository taskListRepository, TaskListRequestMapper taskListRequestMapper) {
-        this.taskListRepository = taskListRepository;
-        this.taskListRequestMapper = taskListRequestMapper;
+    public TaskRequestMapperImpl(BoardColumnRepository boardColumnRepository, BoardColumnRequestMapper boardColumnRequestMapper) {
+        this.boardColumnRepository = boardColumnRepository;
+        this.boardColumnRequestMapper = boardColumnRequestMapper;
     }
 
     @Override
@@ -25,7 +24,7 @@ public class TaskRequestMapperImpl implements TaskRequestMapper {
             return null;
         }
 
-        TaskList taskList = taskListRepository.findById(task.getTaskList().getId()).orElseThrow(() -> new RuntimeException("TaskList Not Found"));
+        BoardColumn boardColumn = boardColumnRepository.findById(task.getBoardColumn().getId()).orElseThrow(() -> new RuntimeException("TaskList Not Found"));
 
         TaskDto.TaskDtoBuilder taskDto = TaskDto.builder();
         taskDto.id(task.getId());
@@ -39,7 +38,7 @@ public class TaskRequestMapperImpl implements TaskRequestMapper {
                     )).toArray(CommentDto[]::new));
         }
         taskDto.status(task.getStatus());
-        taskDto.taskListDto(taskListRequestMapper.toTaskListDto(taskList));
+        taskDto.boardColumnDTO(boardColumnRequestMapper.toTaskListDto(boardColumn));
 
         return taskDto.build();
     }

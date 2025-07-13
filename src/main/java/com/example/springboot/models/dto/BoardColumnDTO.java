@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TaskListDto {
+public class BoardColumnDTO {
     private Long id;
     private String name;
     private String description;

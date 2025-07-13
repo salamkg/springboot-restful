@@ -4,6 +4,8 @@ import com.example.springboot.models.dto.BoardDto;
 import com.example.springboot.models.dto.ProjectDto;
 import com.example.springboot.models.dto.ProjectRequestDto;
 import com.example.springboot.services.ProjectService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Проекты")
 @RestController
 @RequestMapping("/api/v1/projects")
 public class ProjectController {
@@ -47,27 +50,38 @@ public class ProjectController {
         return ResponseEntity.ok().body(projects);
     }
 
+    @Operation(summary = "Создание проекта")
     @PostMapping("/create")
     public ResponseEntity<?> createProject(@RequestBody ProjectRequestDto projectDto) {
         projectService.create(projectDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(projectDto);
     }
 
+    @Operation(summary = "Просмотр проекта")
     @GetMapping("/{key}/boards/{projectId}")
     public ResponseEntity<ProjectDto> getProject(@PathVariable Long projectId, @PathVariable(required = false) String key) {
         ProjectDto projectDto = projectService.getProjectById(projectId);
         return ResponseEntity.ok(projectDto);
     }
 
+    @Operation(summary = "Редактирование проекта")
     @PutMapping("/{id}/edit")
     public ResponseEntity<?> editProject(@PathVariable Long id, @RequestBody ProjectRequestDto projectDto) {
         projectService.editProject(id, projectDto);
         return ResponseEntity.ok().body(projectDto);
     }
 
+    @Operation(summary = "Удаление проекта")
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<?> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @Operation(summary = "Добавить пользователей")
+    @PutMapping("/{projectId}/add-people")
+    public ResponseEntity<?> addPeople(@PathVariable Long projectId, @RequestParam String email) {
+        projectService.addPeople(projectId, email);
+        return ResponseEntity.ok().build();
     }
 }

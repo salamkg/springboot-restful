@@ -1,14 +1,14 @@
 package com.example.springboot.services.impl;
 
 import com.example.springboot.mappers.BoardRequestMapper;
-import com.example.springboot.mappers.TaskListRequestMapper;
+import com.example.springboot.mappers.BoardColumnRequestMapper;
 import com.example.springboot.models.dto.BoardDto;
-import com.example.springboot.models.dto.TaskListDto;
+import com.example.springboot.models.dto.BoardColumnDTO;
 import com.example.springboot.models.entities.*;
 import com.example.springboot.models.enums.TaskStatus;
 import com.example.springboot.repositories.BoardRepository;
 import com.example.springboot.repositories.ChangeLogRepository;
-import com.example.springboot.repositories.TaskListRepository;
+import com.example.springboot.repositories.BoardColumnRepository;
 import com.example.springboot.repositories.UserRepository;
 import com.example.springboot.services.BoardService;
 import com.example.springboot.services.UserService;
@@ -26,13 +26,13 @@ public class BoardServiceImpl implements BoardService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private TaskListRepository taskListRepository;
+    private BoardColumnRepository boardColumnRepository;
     @Autowired
     private ChangeLogRepository changeLogRepository;
     @Autowired
     private BoardRequestMapper boardRequestMapper;
     @Autowired
-    private TaskListRequestMapper taskListRequestMapper;
+    private BoardColumnRequestMapper boardColumnRequestMapper;
     @Autowired
     private UserService userService;
 
@@ -40,33 +40,33 @@ public class BoardServiceImpl implements BoardService {
     public BoardDto createBoard(String username, Board board) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User with " + username +" not found"));
 
-        Board newBoard = new Board();
-        newBoard.setId(board.getId());
-        newBoard.setName(board.getName());
-        newBoard.setDescription(board.getDescription());
-        newBoard.getMembers().add(user);
-        boardRepository.save(newBoard);
+//        Board newBoard = new Board();
+//        newBoard.setId(board.getId());
+//        newBoard.setName(board.getName());
+//        newBoard.setDescription(board.getDescription());
+//        newBoard.getMembers().add(user);
+//        boardRepository.save(newBoard);
 
         //Logging
 
-        return boardRequestMapper.toBoardDto(newBoard);
+        return null;
     }
 
     @Override
     public BoardDto updateBoard(Long boardId, Board board) {
         Board editBoard = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found"));
-        if (board.getName() != null) {
-            editBoard.setName(board.getName());
-        }
-        if (board.getDescription() != null) {
-            editBoard.setDescription(board.getDescription());
-        }
+//        if (board.getName() != null) {
+//            editBoard.setName(board.getName());
+//        }
+//        if (board.getDescription() != null) {
+//            editBoard.setDescription(board.getDescription());
+//        }
         //Get Board users to set username
         List<User> users = getBoardUsers(editBoard.getMembers());
         editBoard.setMembers(users);
 
-        if (board.getTaskLists() != null) {
-            editBoard.setTaskLists(board.getTaskLists());
+        if (board.getBoardColumns() != null) {
+            editBoard.setBoardColumns(board.getBoardColumns());
         }
         boardRepository.save(editBoard);
 
@@ -111,26 +111,26 @@ public class BoardServiceImpl implements BoardService {
 
     //TODO delete or remove method
     @Override
-    public TaskListDto createTaskListOnBoard(Long boardId, TaskList taskList) {
-        if (taskList.getPosition() == null) {
-            taskList.setPosition(1);
+    public BoardColumnDTO createTaskListOnBoard(Long boardId, BoardColumn boardColumn) {
+        if (boardColumn.getPosition() == null) {
+            boardColumn.setPosition(1);
         }
 
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found"));
 
-        board.getTaskLists().add(taskList);
-        taskList.setBoard(board);
-        taskListRepository.save(taskList);
+        board.getBoardColumns().add(boardColumn);
+        boardColumn.setBoard(board);
+        boardColumnRepository.save(boardColumn);
 
-        return taskListRequestMapper.toTaskListDto(taskList);
+        return boardColumnRequestMapper.toTaskListDto(boardColumn);
     }
 
     //TODO delete or remove method
     @Override
-    public TaskListDto updateTaskListOnBoard(TaskList taskList) {
-        taskListRepository.save(taskList);
-        return taskListRequestMapper.toTaskListDto(taskList);
+    public BoardColumnDTO updateTaskListOnBoard(BoardColumn boardColumn) {
+        boardColumnRepository.save(boardColumn);
+        return boardColumnRequestMapper.toTaskListDto(boardColumn);
     }
 
     //TODO delete or remove method
@@ -139,44 +139,44 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found"));
 
-        TaskList taskListToUpdate = board.getTaskLists().stream()
+        BoardColumn boardColumnToUpdate = board.getBoardColumns().stream()
                 .filter(taskList -> taskList.getId().equals(taskListId))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("List not found"));
 
         // Получаем текущую позицию
-        Integer currentPosition = taskListToUpdate.getPosition();
+        Integer currentPosition = boardColumnToUpdate.getPosition();
         if (!currentPosition.equals(newPosition)) {
             if (newPosition > currentPosition) {
-                taskListToUpdate.setPosition(newPosition);
+                boardColumnToUpdate.setPosition(newPosition);
             } else {
-                taskListToUpdate.setPosition(currentPosition);
+                boardColumnToUpdate.setPosition(currentPosition);
             }
         }
 
-        taskListToUpdate.setPosition(newPosition);
-        setTaskListNameByPosition(newPosition, taskListToUpdate);
+        boardColumnToUpdate.setPosition(newPosition);
+        setTaskListNameByPosition(newPosition, boardColumnToUpdate);
 
-        taskListRepository.save(taskListToUpdate);
+        boardColumnRepository.save(boardColumnToUpdate);
     }
 
     //TODO delete or remove method
-    public void setTaskListNameByPosition(Integer position, TaskList taskList) {
+    public void setTaskListNameByPosition(Integer position, BoardColumn boardColumn) {
         switch (position) {
             case 1:
-                taskList.setName(String.valueOf(TaskStatus.NEW));
+                boardColumn.setName(String.valueOf(TaskStatus.NEW));
                 break;
             case 2:
-                taskList.setName(String.valueOf(TaskStatus.PENDING));
+                boardColumn.setName(String.valueOf(TaskStatus.PENDING));
                 break;
             case 3:
-                taskList.setName(String.valueOf(TaskStatus.TESTING));
+                boardColumn.setName(String.valueOf(TaskStatus.TESTING));
                 break;
             case 4:
-                taskList.setName(String.valueOf(TaskStatus.COMPLETED));
+                boardColumn.setName(String.valueOf(TaskStatus.COMPLETED));
                 break;
             default:
-                taskList.setName(taskList.getName());
+                boardColumn.setName(boardColumn.getName());
         }
     }
 }

@@ -18,6 +18,6 @@ public class TaskDto {
     private Integer position;
     private String priority;
     private CommentDto[] comments;
-    private TaskListDto taskListDto;
+    private BoardColumnDTO boardColumnDTO;
     private MultipartFile files;
 }

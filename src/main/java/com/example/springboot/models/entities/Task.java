@@ -52,7 +52,7 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "task_list_id")
-    private TaskList taskList;
+    private BoardColumn boardColumn;
 
     @ManyToMany()
     @JoinTable(name = "task_users", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))

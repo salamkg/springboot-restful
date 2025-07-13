@@ -4,15 +4,10 @@ import com.example.springboot.mappers.BoardRequestMapper;
 import com.example.springboot.mappers.ProjectMapper;
 import com.example.springboot.mappers.UserRequestMapper;
 import com.example.springboot.models.dto.*;
-import com.example.springboot.models.entities.Comment;
-import com.example.springboot.models.entities.Project;
-import com.example.springboot.models.entities.Task;
-import com.example.springboot.models.entities.User;
-import com.example.springboot.repositories.CommentRepository;
-import com.example.springboot.repositories.ProjectRepository;
-import com.example.springboot.repositories.TaskRepository;
-import com.example.springboot.repositories.UserRepository;
-import com.example.springboot.services.CommentService;
+import com.example.springboot.models.entities.*;
+import com.example.springboot.models.enums.UserRole;
+import com.example.springboot.models.enums.UserStatus;
+import com.example.springboot.repositories.*;
 import com.example.springboot.services.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,9 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -36,6 +29,12 @@ public class ProjectServiceImpl implements ProjectService {
     private UserRequestMapper userRequestMapper;
     @Autowired
     private ProjectMapper projectMapper;
+    @Autowired
+    private BoardRepository boardRepository;
+    @Autowired
+    private BoardColumnRepository boardColumnRepository;
+    @Autowired
+    private UserRepository userRepository;
 
 
     @Override
@@ -116,6 +115,27 @@ public class ProjectServiceImpl implements ProjectService {
     public void create(ProjectRequestDto projectDto) {
         Project project = projectMapper.toProject(projectDto);
         projectRepository.save(project);
+
+        Board projectBoard = Board.builder()
+                .project(project)
+                .build();
+        boardRepository.save(projectBoard);
+
+        List<BoardColumn> boardColumns = List.of(
+                BoardColumn.builder()
+                        .name("In Progress")
+                        .board(projectBoard)
+                        .build(),
+                BoardColumn.builder()
+                        .name("Done")
+                        .board(projectBoard)
+                        .build(),
+                BoardColumn.builder()
+                        .name("Testing")
+                        .board(projectBoard)
+                        .build()
+        );
+        boardColumnRepository.saveAll(boardColumns);
     }
 
     @Override
@@ -130,9 +150,6 @@ public class ProjectServiceImpl implements ProjectService {
         }
         if(projectDto.getType() != null) {
             project.setType(projectDto.getType());
-        }
-        if(projectDto.getLead() != null) {
-            project.setLead(userRequestMapper.toUser(projectDto.getLead()));
         }
         projectRepository.save(project);
     }
@@ -151,5 +168,31 @@ public class ProjectServiceImpl implements ProjectService {
         LocalDateTime cutoffDate = LocalDateTime.now().minusDays(2);
         List<Project> toDelete = projectRepository.findByIsDeletedTrueAndIsDeletedAtBefore(cutoffDate);
         projectRepository.deleteAll(toDelete);
+    }
+
+    @Override
+    public void addPeople(Long projectId, String email) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+
+        // TODO можно реализовать отдельную сущность Invitation для полноценной механики приглашений
+        User user = userRepository.findByEmail(email).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setStatus(UserStatus.INVITED);
+            newUser.setPassword("password");
+            newUser.setRole(UserRole.USER);
+            return userRepository.save(newUser);
+        });
+
+        if(!project.getPeople().contains(user)) {
+            project.getPeople().add(user);
+            project.setPeople(project.getPeople().subList(0, 2));
+        }
+        if(!user.getProjects().contains(project)) {
+            user.getProjects().add(project);
+        }
+
+        projectRepository.save(project);
+
     }
 }

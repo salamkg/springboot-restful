@@ -9,9 +9,9 @@ import java.util.List;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    List<Task> findAllByTaskList_Id(Long taskListId);
+    List<Task> findAllByBoardColumn_Id(Long taskListId);
 
-    Task findTaskByTaskList_Id(Long taskListId);
+    Task findTaskByBoardColumn_Id(Long taskListId);
 
     // Подсчет задач с определенным статусом по проекту IN_PROGRESS, PENDING
 
