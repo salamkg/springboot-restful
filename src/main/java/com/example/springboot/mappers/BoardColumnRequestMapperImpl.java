@@ -25,6 +25,7 @@ public class BoardColumnRequestMapperImpl implements BoardColumnRequestMapper {
 
         BoardColumnDTO boardColumnDTO = BoardColumnDTO.builder()
                 .id(boardColumn.getId())
+                .name(boardColumn.getName())
                 .boardDto(boardRequestMapper.toBoardDto(board))
                 .build();
 

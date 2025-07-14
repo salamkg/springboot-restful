@@ -78,10 +78,10 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @Operation(summary = "Добавить пользователей")
-    @PutMapping("/{projectId}/add-people")
-    public ResponseEntity<?> addPeople(@PathVariable Long projectId, @RequestParam String email) {
-        projectService.addPeople(projectId, email);
+    @Operation(summary = "Добавить пользователей в проект")
+    @PutMapping("/{id}/add-people")
+    public ResponseEntity<?> addPeople(@PathVariable Long id, @RequestParam String email) {
+        projectService.addPeople(id, email);
         return ResponseEntity.ok().build();
     }
 }

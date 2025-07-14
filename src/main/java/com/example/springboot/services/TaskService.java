@@ -13,14 +13,14 @@ import java.util.List;
 @Service
 public interface TaskService {
 
-    TaskDto createTask(String name, String description, String priority, Long taskListId, List<Long> ids,List<MultipartFile> files);
+    TaskDto createTask(Long boardColumnId, String name, String description, String priority, List<Long> ids,List<MultipartFile> files);
     TaskDto editTask(Long taskListId, Long taskId, Task task);
     void deleteTaskById(Long id);
     void deleteTasksById(List<Long> id);
     List<TaskDto> getAllTasks(Long taskListId, String sort) throws IOException;
     Page<TaskDto> getAllTasksPage(String sort, Pageable pageable);
     TaskDto getTaskById(Long id);
-    void updateTaskPosition(Long taskId, Integer position);
+    void updateTaskStatus(Long taskId, String status);
     void updateTaskAssignees(Long taskId, List<Long> assigneeIds);
     TaskDto changeTaskToSubTask(Long taskId, Long parentTaskId);
 }

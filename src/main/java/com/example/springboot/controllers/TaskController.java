@@ -5,6 +5,8 @@ import com.example.springboot.models.dto.TaskDto;
 import com.example.springboot.models.entities.Task;
 import com.example.springboot.services.ChangeLogService;
 import com.example.springboot.services.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,8 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+@Tag(name = "Задачи", description = "Задачи проекта")
 @RestController
-@RequestMapping("/api/v1/lists")
+@RequestMapping("/api/v1/boards")
 public class TaskController {
 
     @Autowired
@@ -45,20 +48,21 @@ public class TaskController {
         return ResponseEntity.ok(taskDto);
     }
 
-    @PostMapping(value = "/{taskListId}/task/create", consumes = "multipart/form-data")
-    public ResponseEntity<TaskDto> createTask(@RequestParam String name,
+    @Operation(summary = "Создание задачи")
+    @PostMapping(value = "/{boardColumnId}/create", consumes = "multipart/form-data")
+    public ResponseEntity<TaskDto> createTask(@PathVariable Long boardColumnId,
+                                              @RequestParam String name,
                                               @RequestParam(required = false) String description,
                                               @RequestParam(required = false) String priority,
-                                              @PathVariable Long taskListId,
                                               @RequestParam(name = "ids", required = false) List<Long> ids,
                                               @RequestParam(name = "file", required = false) List<MultipartFile> files
     ) {
 
-        TaskDto newTask = taskService.createTask(name, description, priority, taskListId, ids, files);
+        TaskDto newTask = taskService.createTask(boardColumnId, name, description, priority, ids, files);
         return ResponseEntity.ok(newTask);
     }
 
-    @PutMapping("{taskListId}/tasks/{taskId}/edit")
+    @PutMapping("/{taskListId}/tasks/{taskId}/edit")
     public ResponseEntity<TaskDto> updateTask(@PathVariable Long taskListId,
                                               @PathVariable Long taskId, @RequestBody Task task) {
         TaskDto editedTask = taskService.editTask(taskListId, taskId, task);
@@ -79,12 +83,13 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-    // Edit Task Position
-    @PutMapping("/tasks/{taskId}/order")
-    public ResponseEntity<TaskDto> updateTaskPosition(@PathVariable Long taskId, @RequestParam(name = "newPosition") Integer newPosition) {
-        taskService.updateTaskPosition(taskId, newPosition);
+    @Operation(summary = "Изменить статус")
+    @PutMapping("/taskStatus/{taskId}/change")
+    public ResponseEntity<TaskDto> updateTaskStatus(@PathVariable Long taskId,
+                                                    @RequestParam(name = "status") String status) {
+        taskService.updateTaskStatus(taskId, status);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/tasks/{taskId}/change-assignee")

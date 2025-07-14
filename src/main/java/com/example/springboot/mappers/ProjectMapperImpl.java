@@ -1,16 +1,21 @@
 package com.example.springboot.mappers;
 
+import com.example.springboot.models.dto.BoardDto;
 import com.example.springboot.models.dto.ProjectDto;
 import com.example.springboot.models.dto.ProjectRequestDto;
 import com.example.springboot.models.entities.Project;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class ProjectMapperImpl implements ProjectMapper {
     private final UserRequestMapper userRequestMapper;
+    private final BoardRequestMapper boardRequestMapper;
 
-    public ProjectMapperImpl(UserRequestMapper userRequestMapper) {
+    public ProjectMapperImpl(UserRequestMapper userRequestMapper, BoardRequestMapper boardRequestMapper) {
         this.userRequestMapper = userRequestMapper;
+        this.boardRequestMapper = boardRequestMapper;
     }
 
     @Override
@@ -30,6 +35,7 @@ public class ProjectMapperImpl implements ProjectMapper {
                 .type(project.getType())
                 .key(project.getKey())
                 .isDeleted(project.getIsDeleted())
+                .boards(project.getBoards().stream().map(boardRequestMapper::toBoardDto).toList())
                 .build();
     }
 }

@@ -14,4 +14,6 @@ public interface BoardColumnRepository extends JpaRepository<BoardColumn, Long> 
     Optional<BoardColumn> findByTasks_Id(Long taskId);
 
     List<BoardColumn> findAllByBoard_Id(Long boardId);
+
+    BoardColumn findBoardColumnByName(String name);
 }

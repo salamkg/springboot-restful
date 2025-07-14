@@ -45,19 +45,18 @@ public class TaskServiceImpl implements TaskService {
     private NotificationService notificationService;
 
     @Override
-    public TaskDto createTask(String name, String description, String priority, Long taskListId, List<Long> ids, List<MultipartFile> files) {
-        BoardColumn boardColumn = boardColumnRepository.findById(taskListId)
-                .orElseThrow(() -> new RuntimeException("TaskList Not Found"));
+    public TaskDto createTask(Long boardColumnId, String name, String description, String priority, List<Long> ids, List<MultipartFile> files) {
+        BoardColumn boardColumn = boardColumnRepository.findById(boardColumnId)
+                .orElseThrow(() -> new RuntimeException("BoardColumn Not Found"));
 
-        Task newTask = new Task();
-        newTask.setName(name);
-        newTask.setDescription(description);
-        newTask.setStatus(TaskStatus.NEW);
-        newTask.setPosition(1);
-        newTask.setPriority(priority);
-//        newTask.setAuthor(author);
-        newTask.setBoard(boardColumn.getBoard());
-        newTask.setBoardColumn(boardColumn);
+        Task newTask = Task.builder()
+                .name(name)
+                .description(description)
+                .status(TaskStatus.NEW)
+                .position(1)
+                .priority(priority)
+                .boardColumn(boardColumn)
+                .build();
 
         if (ids != null && !ids.isEmpty()) {
             List<User> assignees = userRepository.findAllById(ids)
@@ -152,22 +151,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void updateTaskPosition(Long taskId, Integer newPosition) {
+    public void updateTaskStatus(Long taskId, String status) {
         Task taskToUpdate = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task Not Found"));
 
-        // Получаем текущую позицию задачи
-        Integer currentPosition = taskToUpdate.getPosition();
-        if (!currentPosition.equals(newPosition)) {
-            if (newPosition > currentPosition) {
-                taskToUpdate.setPosition(newPosition);
-            } else {
-                taskToUpdate.setPosition(currentPosition);
-            }
-        }
+        BoardColumn boardColumn = boardColumnRepository.findBoardColumnByName(status);
 
-        setTaskStatusByPosition(newPosition, taskToUpdate);
+        taskToUpdate.setBoardColumn(boardColumn);
         taskRepository.save(taskToUpdate);
-        changeLogService.saveChangeLog(taskToUpdate, null,"edit");
+//        changeLogService.saveChangeLog(taskToUpdate, null,"edit");
     }
 
     @Override

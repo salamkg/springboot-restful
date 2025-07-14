@@ -13,6 +13,8 @@ public class BoardRequestMapperImpl implements BoardRequestMapper {
     public BoardDto toBoardDto(Board board) {
         if (board == null) return null;
 
-        return BoardDto.builder().build();
+        return BoardDto.builder()
+                .id(board.getId())
+                .build();
     }
 }
