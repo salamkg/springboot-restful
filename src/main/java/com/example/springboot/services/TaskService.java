@@ -14,7 +14,7 @@ import java.util.List;
 public interface TaskService {
 
     TaskDto createTask(Long boardColumnId, String name, String description, String priority, List<Long> ids,List<MultipartFile> files);
-    TaskDto editTask(Long taskListId, Long taskId, Task task);
+    TaskDto editTask(Long taskId, Task task);
     void deleteTaskById(Long id);
     void deleteTasksById(List<Long> id);
     List<TaskDto> getAllTasks(Long taskListId, String sort) throws IOException;
@@ -23,4 +23,6 @@ public interface TaskService {
     void updateTaskStatus(Long taskId, String status);
     void updateTaskAssignees(Long taskId, List<Long> assigneeIds);
     TaskDto changeTaskToSubTask(Long taskId, Long parentTaskId);
+
+    TaskDto renameTask(Long taskId, String newName);
 }

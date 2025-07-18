@@ -42,7 +42,7 @@ public class TaskController {
         return ResponseEntity.ok(allTasks);
     }
 
-    @GetMapping(path = "/{id}")
+    @GetMapping("/tasks/{id}")
     public ResponseEntity<TaskDto> getTaskById(@PathVariable Long id) {
         TaskDto taskDto = taskService.getTaskById(id);
         return ResponseEntity.ok(taskDto);
@@ -62,10 +62,16 @@ public class TaskController {
         return ResponseEntity.ok(newTask);
     }
 
-    @PutMapping("/{taskListId}/tasks/{taskId}/edit")
-    public ResponseEntity<TaskDto> updateTask(@PathVariable Long taskListId,
-                                              @PathVariable Long taskId, @RequestBody Task task) {
-        TaskDto editedTask = taskService.editTask(taskListId, taskId, task);
+    @Operation(summary = "Переименовать задачу")
+    @PutMapping("/tasks/{taskId}/rename")
+    public ResponseEntity<TaskDto> renameTask(@PathVariable Long taskId, @RequestParam String newName) {
+        TaskDto taskDto = taskService.renameTask(taskId, newName);
+        return ResponseEntity.ok(taskDto);
+    }
+
+    @PutMapping("/tasks/{taskId}/edit")
+    public ResponseEntity<TaskDto> updateTask(@PathVariable Long taskId, @RequestBody Task task) {
+        TaskDto editedTask = taskService.editTask(taskId, task);
         return ResponseEntity.ok(editedTask);
     }
 

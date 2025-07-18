@@ -95,10 +95,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDto editTask(Long taskListId, Long taskId, Task task) {
+    public TaskDto editTask(Long taskId, Task task) {
         Task editTask = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
 
-//        changeLogService.saveChangeLog(task, editTask,"edit");
         boolean updated = false;
         if (task.getName() != null && !task.getName().equals(editTask.getName())) {
             editTask.setName(task.getName());
@@ -147,6 +146,16 @@ public class TaskServiceImpl implements TaskService {
         Task parentTask = taskRepository.findById(parentTaskId).orElse(null);
         task.setParentTask(parentTask);
         taskRepository.save(task);
+        return taskRequestMapper.toTaskDto(task);
+    }
+
+    @Override
+    public TaskDto renameTask(Long taskId, String newName) {
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
+        if (newName != null && !newName.equals(task.getName())) {
+            task.setName(newName);
+            taskRepository.save(task);
+        }
         return taskRequestMapper.toTaskDto(task);
     }
 
