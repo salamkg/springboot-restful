@@ -1,5 +1,6 @@
 package com.example.springboot.services.impl;
 
+import com.example.springboot.models.dto.CommentDto;
 import com.example.springboot.models.entities.Comment;
 import com.example.springboot.models.entities.Task;
 import com.example.springboot.models.entities.User;
@@ -25,16 +26,22 @@ public class CommentServiceImpl implements CommentService {
 
 
     @Override
-    public String addComment(Long taskId, Long userId, Comment comment) {
-        System.out.println(comment);
+    public String addComment(Long taskId, Long userId, CommentDto commentDto) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         Comment newComment = new Comment();
         newComment.setTask(task);
         newComment.setUser(user);
-        newComment.setText(comment.getText());
-        newComment.setTimestamp(new Date());
+        newComment.setText(commentDto.getText());
+        newComment.setCreatedAt(new Date());
+
+        if (commentDto.getParentId() != null) {
+            Comment parent = commentRepository.findById(commentDto.getParentId()).orElseThrow(() -> new RuntimeException("Parent not found"));
+            newComment.setParent(parent);
+            parent.getReplies().add(newComment);
+        }
+
         commentRepository.save(newComment);
 
         return "Comment successfully added!";

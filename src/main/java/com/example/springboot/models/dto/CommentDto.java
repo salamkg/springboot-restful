@@ -1,19 +1,18 @@
 package com.example.springboot.models.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.time.LocalDate;
+import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class CommentDto {
 
-//    private Long id;
+    private Long id;
     private String text;
-//    private LocalDate date;
+    private Long parentId;
+    private List<CommentDto> replies = new ArrayList<>();
 }

@@ -127,6 +127,8 @@ public class TaskServiceImpl implements TaskService {
         return taskRequestMapper.toTaskDto(editTask);
     }
 
+
+
     @Override
     public void updateTaskAssignees(Long taskId, List<Long> assigneeIds) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
@@ -212,7 +214,9 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto getTaskById(Long id) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
-        return taskRequestMapper.toTaskDto(task);
+
+        Task taskWithComments = taskRepository.findByIdWithComments(id).orElseThrow(() -> new RuntimeException("Task not found"));
+        return taskRequestMapper.toTaskDto(taskWithComments);
     }
 
     //TODO доделать
