@@ -162,14 +162,15 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void updateTaskStatus(Long taskId, String status) {
-        Task taskToUpdate = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task Not Found"));
-
-        BoardColumn boardColumn = boardColumnRepository.findBoardColumnByName(status);
-
-        taskToUpdate.setBoardColumn(boardColumn);
-        taskRepository.save(taskToUpdate);
-//        changeLogService.saveChangeLog(taskToUpdate, null,"edit");
+    public TaskDto updateTaskStatus(Long taskId, String status) {
+        Task taskToUpdate = null;
+        if (taskId != null && status != null) {
+            BoardColumn boardColumn = boardColumnRepository.findBoardColumnByName(status);
+            taskToUpdate = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task Not Found"));
+            taskToUpdate.setBoardColumn(boardColumn);
+            taskRepository.save(taskToUpdate);
+        }
+        return taskRequestMapper.toTaskDto(taskToUpdate);
     }
 
     @Override

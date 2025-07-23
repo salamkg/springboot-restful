@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public interface TaskListService {
+public interface BoardColumnService {
 
     BoardColumnDTO createTaskList(Long boardId, BoardColumn boardColumn);
 
@@ -15,5 +15,5 @@ public interface TaskListService {
 
     BoardColumnDTO updateTaskList(Long boardId, Long taskListId, BoardColumn boardColumn);
 
-    List<BoardColumnDTO> getAllTaskLists(Long boardId);
+    List<BoardColumnDTO> getBoardColumns(Long boardId);
 }

@@ -8,7 +8,7 @@ import com.example.springboot.repositories.BoardRepository;
 import com.example.springboot.repositories.ChangeLogRepository;
 import com.example.springboot.repositories.BoardColumnRepository;
 import com.example.springboot.repositories.UserRepository;
-import com.example.springboot.services.TaskListService;
+import com.example.springboot.services.BoardColumnService;
 import com.example.springboot.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TaskListServiceImpl implements TaskListService {
+public class BoardColumnServiceImpl implements BoardColumnService {
 
     @Autowired
     private BoardColumnRepository boardColumnRepository;
@@ -68,7 +68,7 @@ public class TaskListServiceImpl implements TaskListService {
     }
 
     @Override
-    public List<BoardColumnDTO> getAllTaskLists(Long boardId) {
+    public List<BoardColumnDTO> getBoardColumns(Long boardId) {
         return boardColumnRepository.findAllByBoard_Id(boardId).stream()
                 .map(boardColumnRequestMapper::toTaskListDto)
                 .toList();

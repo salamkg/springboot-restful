@@ -15,7 +15,7 @@ public interface ProjectService {
 
     ProjectDto getProjectById(Long id);
 
-    List<ProjectDto> getAllProjects(String page, String sortKey, String sortOrder);
+    List<ProjectDto> getAllProjects();
 
     void create(ProjectRequestDto projectDto);
 

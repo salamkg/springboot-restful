@@ -22,10 +22,8 @@ public class ProjectController {
     private ProjectService projectService;
 
     @GetMapping()
-    public ResponseEntity<List<ProjectDto>> getAllProjects(@RequestParam(name = "page", defaultValue = "1") String page,
-                                                           @RequestParam(name = "sortKey", defaultValue = "name", required = false) String sortKey,
-                                                           @RequestParam(name = "sortOrder", defaultValue = "ASC", required = false) String sortOrder) {
-        List<ProjectDto> projectDtoList = projectService.getAllProjects(page, sortKey, sortOrder);
+    public ResponseEntity<List<ProjectDto>> getAllProjects() {
+        List<ProjectDto> projectDtoList = projectService.getAllProjects();
         return ResponseEntity.status(HttpStatus.OK).body(projectDtoList);
     }
 
@@ -58,7 +56,7 @@ public class ProjectController {
     }
 
     @Operation(summary = "Просмотр проекта")
-    @GetMapping("/{key}/boards/{projectId}")
+    @GetMapping("/boards/{projectId}")
     public ResponseEntity<ProjectDto> getProject(@PathVariable Long projectId, @PathVariable(required = false) String key) {
         ProjectDto projectDto = projectService.getProjectById(projectId);
         return ResponseEntity.ok(projectDto);

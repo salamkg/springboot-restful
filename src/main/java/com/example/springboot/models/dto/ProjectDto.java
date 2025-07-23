@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 public class ProjectDto {
 
+    private Long id;
     private String name;
     private String key;
     private ProjectType type;

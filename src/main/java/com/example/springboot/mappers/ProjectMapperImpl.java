@@ -31,6 +31,7 @@ public class ProjectMapperImpl implements ProjectMapper {
     @Override
     public ProjectDto toDTO(Project project) {
         return ProjectDto.builder()
+                .id(project.getId())
                 .name(project.getName())
                 .type(project.getType())
                 .key(project.getKey())

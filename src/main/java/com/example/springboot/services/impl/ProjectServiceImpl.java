@@ -98,17 +98,15 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectDto getProjectById(Long id) {
         Project project = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found"));
-        ProjectDto projectDto = projectMapper.toDTO(project);
-        return projectDto;
+        return projectMapper.toDTO(project);
     }
 
     @Override
-    public List<ProjectDto> getAllProjects(String page, String sortKey, String sortOrder) {
+    public List<ProjectDto> getAllProjects() {
         List<Project> projectsList = projectRepository.findAll();
-        List<ProjectDto> projectDtoList = projectsList.stream()
+        return projectsList.stream()
                 .map(project -> projectMapper.toDTO(project))
                 .toList();
-        return projectDtoList;
     }
 
     @Override

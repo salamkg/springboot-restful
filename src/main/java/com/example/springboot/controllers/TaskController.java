@@ -93,9 +93,8 @@ public class TaskController {
     @PutMapping("/taskStatus/{taskId}/change")
     public ResponseEntity<TaskDto> updateTaskStatus(@PathVariable Long taskId,
                                                     @RequestParam(name = "status") String status) {
-        taskService.updateTaskStatus(taskId, status);
-
-        return ResponseEntity.ok().build();
+        TaskDto taskDto = taskService.updateTaskStatus(taskId, status);
+        return ResponseEntity.ok(taskDto);
     }
 
     @PutMapping("/tasks/{taskId}/change-assignee")

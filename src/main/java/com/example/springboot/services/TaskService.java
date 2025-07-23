@@ -20,7 +20,7 @@ public interface TaskService {
     List<TaskDto> getAllTasks(Long taskListId, String sort) throws IOException;
     Page<TaskDto> getAllTasksPage(String sort, Pageable pageable);
     TaskDto getTaskById(Long id);
-    void updateTaskStatus(Long taskId, String status);
+    TaskDto updateTaskStatus(Long taskId, String status);
     void updateTaskAssignees(Long taskId, List<Long> assigneeIds);
     TaskDto changeTaskToSubTask(Long taskId, Long parentTaskId);
 
