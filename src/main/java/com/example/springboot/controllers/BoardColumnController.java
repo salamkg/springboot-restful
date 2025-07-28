@@ -13,29 +13,25 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/boards")
-@Tag(name = "Доска")
+@Tag(name = "Доска колонок")
 public class BoardColumnController {
 
     @Autowired
     private BoardColumnService boardColumnService;
 
-//    @Autowired
-    public BoardColumnController(BoardColumnService boardColumnService) {
-        this.boardColumnService = boardColumnService;
-    }
-
-    @Operation(summary = "Доска колонок")
+    @Operation(summary = "Просмотр колонок доски")
     @GetMapping("/{boardId}/columns")
     public ResponseEntity<List<BoardColumnDTO>> getBoardColumns(@PathVariable Long boardId) {
         List<BoardColumnDTO> taskListDtoList = boardColumnService.getBoardColumns(boardId);
         return ResponseEntity.ok(taskListDtoList);
     }
 
-    @PostMapping("/{boardId}/list/create")
-    public ResponseEntity<BoardColumnDTO> createTaskList(@PathVariable Long boardId,
-                                                         @RequestBody BoardColumn boardColumn) {
+    @Operation(summary = "Создать колонку")
+    @PostMapping("/{boardId}/createColumn")
+    public ResponseEntity<BoardColumnDTO> createBoardColumn(@PathVariable Long boardId,
+                                                            @RequestParam String name) {
 
-        BoardColumnDTO newTaskList = boardColumnService.createTaskList(boardId, boardColumn);
+        BoardColumnDTO newTaskList = boardColumnService.createBoardColumn(boardId, name);
         return ResponseEntity.ok(newTaskList);
     }
 
@@ -50,7 +46,7 @@ public class BoardColumnController {
 
     @Operation(summary = "Удаление колонки")
     @DeleteMapping("/columns/{id}/remove")
-    public void deleteTaskList(@PathVariable Long id, @RequestParam String name) {
-        boardColumnService.deleteBoardColumnById(id, name);
+    public void deleteTaskList(@PathVariable(name = "id") Long deleteId, @RequestParam Long newId) {
+        boardColumnService.deleteBoardColumnById(deleteId, newId);
     }
 }

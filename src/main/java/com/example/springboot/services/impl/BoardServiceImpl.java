@@ -40,27 +40,13 @@ public class BoardServiceImpl implements BoardService {
     public BoardDto createBoard(String username, Board board) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User with " + username +" not found"));
 
-//        Board newBoard = new Board();
-//        newBoard.setId(board.getId());
-//        newBoard.setName(board.getName());
-//        newBoard.setDescription(board.getDescription());
-//        newBoard.getMembers().add(user);
-//        boardRepository.save(newBoard);
-
-        //Logging
-
         return null;
     }
 
     @Override
     public BoardDto updateBoard(Long boardId, Board board) {
         Board editBoard = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found"));
-//        if (board.getName() != null) {
-//            editBoard.setName(board.getName());
-//        }
-//        if (board.getDescription() != null) {
-//            editBoard.setDescription(board.getDescription());
-//        }
+
         //Get Board users to set username
         List<User> users = getBoardUsers(editBoard.getMembers());
         editBoard.setMembers(users);
@@ -123,14 +109,14 @@ public class BoardServiceImpl implements BoardService {
         boardColumn.setBoard(board);
         boardColumnRepository.save(boardColumn);
 
-        return boardColumnRequestMapper.toTaskListDto(boardColumn);
+        return boardColumnRequestMapper.toBoardColumnDto(boardColumn);
     }
 
     //TODO delete or remove method
     @Override
     public BoardColumnDTO updateTaskListOnBoard(BoardColumn boardColumn) {
         boardColumnRepository.save(boardColumn);
-        return boardColumnRequestMapper.toTaskListDto(boardColumn);
+        return boardColumnRequestMapper.toBoardColumnDto(boardColumn);
     }
 
     //TODO delete or remove method

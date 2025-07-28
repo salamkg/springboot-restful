@@ -45,7 +45,7 @@ public class TaskRequestMapperImpl implements TaskRequestMapper {
         taskDto.description(task.getDescription());
         taskDto.priority(task.getPriority());
         taskDto.status(task.getStatus());
-        taskDto.boardColumnDTO(boardColumnRequestMapper.toTaskListDto(boardColumn));
+        taskDto.boardColumnDTO(boardColumnRequestMapper.toBoardColumnDto(boardColumn));
         taskDto.comments(task.getComments() != null ? buildCommentTree(task.getComments()) : null);
 
         return taskDto.build();

@@ -9,9 +9,9 @@ import java.util.List;
 @Service
 public interface BoardColumnService {
 
-    BoardColumnDTO createTaskList(Long boardId, BoardColumn boardColumn);
+    BoardColumnDTO createBoardColumn(Long boardId, String name);
 
-    void deleteBoardColumnById(Long taskListId, String status);
+    void deleteBoardColumnById(Long deleteId, Long newId);
 
     BoardColumnDTO updateTaskList(Long boardId, Long taskListId, BoardColumn boardColumn);
 

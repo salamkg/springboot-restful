@@ -16,7 +16,7 @@ public class BoardColumnRequestMapperImpl implements BoardColumnRequestMapper {
     private BoardRepository boardRepository;
 
     @Override
-    public BoardColumnDTO toTaskListDto(BoardColumn boardColumn) {
+    public BoardColumnDTO toBoardColumnDto(BoardColumn boardColumn) {
         if (boardColumn == null) {
             return null;
         }

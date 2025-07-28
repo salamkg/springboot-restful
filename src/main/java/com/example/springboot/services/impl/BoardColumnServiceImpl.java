@@ -36,18 +36,17 @@ public class BoardColumnServiceImpl implements BoardColumnService {
     private TaskService taskService;
 
     @Override
-    public BoardColumnDTO createTaskList(Long boardId, BoardColumn boardColumn) {
+    public BoardColumnDTO createBoardColumn(Long boardId, String name) {
 
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("Board with ID " + boardId + " Not Found"));
 
-        BoardColumn newBoardColumn = new BoardColumn();
-        newBoardColumn.setName(boardColumn.getName());
-        newBoardColumn.setDescription(boardColumn.getDescription());
-        newBoardColumn.setPosition(boardColumn.getPosition());
-        newBoardColumn.setBoard(board);
+        BoardColumn newBoardColumn = BoardColumn.builder()
+                .name(name)
+                .board(board)
+                .build();
         boardColumnRepository.save(newBoardColumn);
 
-        return boardColumnRequestMapper.toTaskListDto(newBoardColumn);
+        return boardColumnRequestMapper.toBoardColumnDto(newBoardColumn);
     }
 
     @Override
@@ -67,30 +66,30 @@ public class BoardColumnServiceImpl implements BoardColumnService {
             editBoardColumn.setTasks(boardColumn.getTasks());
         }
         boardColumnRepository.save(editBoardColumn);
-        return boardColumnRequestMapper.toTaskListDto(editBoardColumn);
+        return boardColumnRequestMapper.toBoardColumnDto(editBoardColumn);
     }
 
     @Override
     public List<BoardColumnDTO> getBoardColumns(Long boardId) {
         return boardColumnRepository.findAllByBoard_Id(boardId).stream()
-                .map(boardColumnRequestMapper::toTaskListDto)
+                .map(boardColumnRequestMapper::toBoardColumnDto)
                 .toList();
 
     }
 
     @Override
-    public void deleteBoardColumnById(Long boardColumnId, String name) {
+    public void deleteBoardColumnById(Long boardColumnDeleteId, Long boardColumnAssignId) {
+        BoardColumn boardColumnToDelete = boardColumnRepository.findById(boardColumnDeleteId).orElseThrow(() -> new EntityNotFoundException("Board Column with ID " + boardColumnDeleteId + " Not Found"));
+        BoardColumn boardColumnToAssign = boardColumnRepository.findById(boardColumnAssignId).orElseThrow(() -> new EntityNotFoundException("Board Column with ID " + boardColumnAssignId + " Not Found"));
 
-        BoardColumn boardColumnToDelete = boardColumnRepository.findById(boardColumnId).orElseThrow(() -> new EntityNotFoundException("Board Column with ID " + boardColumnId + " Not Found"));
-        BoardColumn boardColumnNew = boardColumnRepository.findBoardColumnByNameContainingIgnoreCase(name);
         List<Task> tasks = taskRepository.findAllByBoardColumn_Id(boardColumnToDelete.getId());
 
         tasks.forEach(task -> {
-            task.setBoardColumn(boardColumnNew);
+            task.setBoardColumn(boardColumnToAssign);
             taskRepository.save(task);
         });
 
-        boardColumnRepository.deleteById(boardColumnId);
+        boardColumnRepository.deleteById(boardColumnDeleteId);
     }
 
 }
