@@ -11,7 +11,7 @@ public interface BoardColumnService {
 
     BoardColumnDTO createTaskList(Long boardId, BoardColumn boardColumn);
 
-    void deleteTaskListById(Long taskListId);
+    void deleteBoardColumnById(Long taskListId, String status);
 
     BoardColumnDTO updateTaskList(Long boardId, Long taskListId, BoardColumn boardColumn);
 

@@ -4,11 +4,10 @@ import com.example.springboot.mappers.BoardColumnRequestMapper;
 import com.example.springboot.models.dto.BoardColumnDTO;
 import com.example.springboot.models.entities.Board;
 import com.example.springboot.models.entities.BoardColumn;
-import com.example.springboot.repositories.BoardRepository;
-import com.example.springboot.repositories.ChangeLogRepository;
-import com.example.springboot.repositories.BoardColumnRepository;
-import com.example.springboot.repositories.UserRepository;
+import com.example.springboot.models.entities.Task;
+import com.example.springboot.repositories.*;
 import com.example.springboot.services.BoardColumnService;
+import com.example.springboot.services.TaskService;
 import com.example.springboot.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +30,10 @@ public class BoardColumnServiceImpl implements BoardColumnService {
     private BoardColumnRequestMapper boardColumnRequestMapper;
     @Autowired
     private UserService userService;
+    @Autowired
+    private TaskRepository taskRepository;
+    @Autowired
+    private TaskService taskService;
 
     @Override
     public BoardColumnDTO createTaskList(Long boardId, BoardColumn boardColumn) {
@@ -76,15 +79,18 @@ public class BoardColumnServiceImpl implements BoardColumnService {
     }
 
     @Override
-    public void deleteTaskListById(Long taskListId) {
-        //Logging
-        String firstName;
-//        firstName = userRepository.findByUsername(userService.getCurrentUser()).get().getFirstName();
+    public void deleteBoardColumnById(Long boardColumnId, String name) {
 
-        boardColumnRepository.findById(taskListId).orElseThrow(() -> new EntityNotFoundException("Board with ID " + taskListId + " Not Found"));
-//        Board board = boardRepository.findById(taskList.getBoard().getId()).orElseThrow(() -> new EntityNotFoundException("Board with ID " + taskList.getBoard().getId() + " Not Found"));
+        BoardColumn boardColumnToDelete = boardColumnRepository.findById(boardColumnId).orElseThrow(() -> new EntityNotFoundException("Board Column with ID " + boardColumnId + " Not Found"));
+        BoardColumn boardColumnNew = boardColumnRepository.findBoardColumnByNameContainingIgnoreCase(name);
+        List<Task> tasks = taskRepository.findAllByBoardColumn_Id(boardColumnToDelete.getId());
 
-        boardColumnRepository.deleteById(taskListId);
+        tasks.forEach(task -> {
+            task.setBoardColumn(boardColumnNew);
+            taskRepository.save(task);
+        });
+
+        boardColumnRepository.deleteById(boardColumnId);
     }
 
 }

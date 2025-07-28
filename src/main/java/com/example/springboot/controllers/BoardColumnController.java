@@ -48,8 +48,9 @@ public class BoardColumnController {
         return ResponseEntity.ok(newTaskList);
     }
 
-    @DeleteMapping("/lists/{taskListId}/remove")
-    public void deleteTaskList(@PathVariable Long taskListId) {
-        boardColumnService.deleteTaskListById(taskListId);
+    @Operation(summary = "Удаление колонки")
+    @DeleteMapping("/columns/{id}/remove")
+    public void deleteTaskList(@PathVariable Long id, @RequestParam String name) {
+        boardColumnService.deleteBoardColumnById(id, name);
     }
 }
