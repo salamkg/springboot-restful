@@ -29,9 +29,10 @@ public class TaskController {
     @Autowired
     private ChangeLogService changeLogService;
 
-    @GetMapping("{taskListId}/tasks")
-    public ResponseEntity<List<TaskDto>> getAllTasks(@PathVariable Long taskListId, @RequestParam(required = false) String sort) throws IOException {
-        List<TaskDto> allTasks = taskService.getAllTasks(taskListId, sort);
+    @Operation(summary = "Просмотр всех задач доски")
+    @GetMapping("{boardId}/tasks")
+    public ResponseEntity<List<TaskDto>> getAllTasks(@PathVariable Long boardId, @RequestParam(required = false) String sort) throws IOException {
+        List<TaskDto> allTasks = taskService.getAllTasks(boardId, sort);
         return ResponseEntity.ok(allTasks);
     }
 
@@ -49,8 +50,9 @@ public class TaskController {
     }
 
     @Operation(summary = "Создание задачи")
-    @PostMapping(value = "/{boardColumnId}/create", consumes = "multipart/form-data")
-    public ResponseEntity<TaskDto> createTask(@PathVariable Long boardColumnId,
+    @PostMapping(value = "/{boardId}/create", consumes = "multipart/form-data")
+    public ResponseEntity<TaskDto> createTask(@PathVariable Long boardId,
+                                              @RequestParam Long boardColumnId,
                                               @RequestParam String name,
                                               @RequestParam(required = false) String description,
                                               @RequestParam(required = false) String priority,
@@ -58,7 +60,7 @@ public class TaskController {
                                               @RequestParam(name = "file", required = false) List<MultipartFile> files
     ) {
 
-        TaskDto newTask = taskService.createTask(boardColumnId, name, description, priority, ids, files);
+        TaskDto newTask = taskService.createTask(boardId, boardColumnId, name, description, priority, ids, files);
         return ResponseEntity.ok(newTask);
     }
 
@@ -92,8 +94,8 @@ public class TaskController {
     @Operation(summary = "Изменить статус")
     @PutMapping("/taskStatus/{taskId}/change")
     public ResponseEntity<TaskDto> updateTaskStatus(@PathVariable Long taskId,
-                                                    @RequestParam(name = "status") String status) {
-        TaskDto taskDto = taskService.updateTaskStatus(taskId, status);
+                                                    @RequestParam(name = "name") String name) {
+        TaskDto taskDto = taskService.updateTaskStatus(taskId, name);
         return ResponseEntity.ok(taskDto);
     }
 

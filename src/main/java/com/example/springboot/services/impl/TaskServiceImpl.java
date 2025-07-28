@@ -45,7 +45,8 @@ public class TaskServiceImpl implements TaskService {
     private NotificationService notificationService;
 
     @Override
-    public TaskDto createTask(Long boardColumnId, String name, String description, String priority, List<Long> ids, List<MultipartFile> files) {
+    public TaskDto createTask(Long boardId, Long boardColumnId, String name, String description, String priority, List<Long> ids, List<MultipartFile> files) {
+        Board board = boardRepository.findById(boardId).orElseThrow(EntityNotFoundException::new);
         BoardColumn boardColumn = boardColumnRepository.findById(boardColumnId)
                 .orElseThrow(() -> new RuntimeException("BoardColumn Not Found"));
 
@@ -55,6 +56,7 @@ public class TaskServiceImpl implements TaskService {
                 .status(TaskStatus.NEW)
                 .position(1)
                 .priority(priority)
+                .board(board)
                 .boardColumn(boardColumn)
                 .build();
 
@@ -162,10 +164,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDto updateTaskStatus(Long taskId, String status) {
+    public TaskDto updateTaskStatus(Long taskId, String name) {
         Task taskToUpdate = null;
-        if (taskId != null && status != null) {
-            BoardColumn boardColumn = boardColumnRepository.findBoardColumnByName(status);
+        if (taskId != null && name != null) {
+            BoardColumn boardColumn = boardColumnRepository.findBoardColumnByNameContainingIgnoreCase(name);
             taskToUpdate = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task Not Found"));
             taskToUpdate.setBoardColumn(boardColumn);
             taskRepository.save(taskToUpdate);
@@ -193,17 +195,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getAllTasks(Long taskListId, String sort) throws IOException {
-        List<TaskDto> taskDtoList = taskRepository.findAllByBoardColumn_Id(taskListId).stream()
+    public List<TaskDto> getAllTasks(Long boardId, String sort) throws IOException {
+        return taskRepository.findTasksByBoard_Id(boardId).stream()
                 .map(task -> taskRequestMapper.toTaskDto(task))
                 .toList();
-        return taskDtoList;
-
-//        List<TaskDto> tasks = taskRepository.findAll(Sort.by(Sort.Direction.ASC, sort)).stream()
-//                .map(task -> taskRequestMapper.toTaskDto(task))
-//                .collect(Collectors.toList());
-//        telegramService.send("Hello! This is message from Spring to Telegram");
-//        return tasks;
     }
 
     @Override
