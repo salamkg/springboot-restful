@@ -51,4 +51,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findByIsDeletedTrueAndIsDeletedAtBefore(LocalDateTime isDeletedAtBefore);
 
+    @Query("select p from Project p where p.isDeleted is null or p.isDeleted = false")
+    List<Project> findAllNotDeleted();
 }

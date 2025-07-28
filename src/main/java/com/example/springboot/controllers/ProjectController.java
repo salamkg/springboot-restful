@@ -20,6 +20,7 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
+    @Operation(summary = "Просмотр всех проектов")
     @GetMapping()
     public ResponseEntity<List<ProjectDto>> getAllProjects() {
         List<ProjectDto> projectDtoList = projectService.getAllProjects();

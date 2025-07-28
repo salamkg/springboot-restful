@@ -103,7 +103,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectDto> getAllProjects() {
-        List<Project> projectsList = projectRepository.findAll();
+        List<Project> projectsList = projectRepository.findAllNotDeleted();
         return projectsList.stream()
                 .map(project -> projectMapper.toDTO(project))
                 .toList();
