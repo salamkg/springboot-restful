@@ -43,18 +43,26 @@ public class TaskServiceImpl implements TaskService {
     private TelegramService telegramService;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @Override
     public TaskDto createTask(Long boardId, Long boardColumnId, String name, String description, String priority, List<Long> ids, List<MultipartFile> files) {
         Board board = boardRepository.findById(boardId).orElseThrow(EntityNotFoundException::new);
         BoardColumn boardColumn = boardColumnRepository.findById(boardColumnId)
                 .orElseThrow(() -> new RuntimeException("BoardColumn Not Found"));
+        Project project = board.getProject();
+
+        //Count how many tasks have this project
+        Long countTasks = taskRepository.countByProjectId(project.getId());
+        String taskKey = project.getKey() + "-" + (countTasks + 1);
 
         Task newTask = Task.builder()
                 .name(name)
                 .description(description)
                 .status(TaskStatus.NEW)
                 .position(1)
+                .key(taskKey) // PRJ-17, 18, 19
                 .priority(priority)
                 .board(board)
                 .boardColumn(boardColumn)

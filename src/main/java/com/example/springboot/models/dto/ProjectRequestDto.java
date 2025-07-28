@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ProjectRequestDto {
-
+    private Long id;
     private String name;
     private String key;
     private ProjectType type;

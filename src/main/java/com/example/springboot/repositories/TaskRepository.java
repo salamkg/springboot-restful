@@ -23,6 +23,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findTasksByBoard_Id(Long boardId);
 
+    @Query("select count(t) from Task t where t.board.project.id = :projectId")
+    Long countByProjectId(Long projectId);
+
     // Подсчет задач с определенным статусом по проекту IN_PROGRESS, PENDING
 
     // Нахождение среднего времени выполнения задач для проекта

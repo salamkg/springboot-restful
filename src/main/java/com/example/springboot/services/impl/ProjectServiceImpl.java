@@ -110,7 +110,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void create(ProjectRequestDto projectDto) {
+    public ProjectDto create(ProjectRequestDto projectDto) {
         Project project = projectMapper.toProject(projectDto);
         projectRepository.save(project);
 
@@ -134,6 +134,7 @@ public class ProjectServiceImpl implements ProjectService {
                         .build()
         );
         boardColumnRepository.saveAll(boardColumns);
+        return projectMapper.toDTO(project);
     }
 
     @Override

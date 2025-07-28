@@ -35,6 +35,8 @@ public class Task {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dueDate; // Дата завершения задачи
 
+    private String key;
+
 //    @ManyToOne
 //    @JoinColumn(name = "user_id")
 //    private User user;

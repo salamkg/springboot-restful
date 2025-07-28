@@ -17,7 +17,7 @@ public interface ProjectService {
 
     List<ProjectDto> getAllProjects();
 
-    void create(ProjectRequestDto projectDto);
+    ProjectDto create(ProjectRequestDto projectDto);
 
     void editProject(Long id, ProjectRequestDto projectDto);
 

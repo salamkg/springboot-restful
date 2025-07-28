@@ -1,6 +1,5 @@
 package com.example.springboot.controllers;
 
-import com.example.springboot.models.dto.BoardDto;
 import com.example.springboot.models.dto.ProjectDto;
 import com.example.springboot.models.dto.ProjectRequestDto;
 import com.example.springboot.services.ProjectService;
@@ -50,9 +49,9 @@ public class ProjectController {
 
     @Operation(summary = "Создание проекта")
     @PostMapping("/create")
-    public ResponseEntity<?> createProject(@RequestBody ProjectRequestDto projectDto) {
-        projectService.create(projectDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectDto);
+    public ResponseEntity<ProjectDto> createProject(@RequestBody ProjectRequestDto dto) {
+        ProjectDto projectDto = projectService.create(dto);
+        return ResponseEntity.ok(projectDto);
     }
 
     @Operation(summary = "Просмотр проекта")

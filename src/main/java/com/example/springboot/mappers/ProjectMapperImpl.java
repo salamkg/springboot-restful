@@ -21,6 +21,7 @@ public class ProjectMapperImpl implements ProjectMapper {
     @Override
     public Project toProject(ProjectRequestDto projectDto) {
         return Project.builder()
+                .id(projectDto.getId())
                 .name(projectDto.getName())
                 .type(projectDto.getType())
                 .key(projectDto.getKey())
@@ -36,7 +37,9 @@ public class ProjectMapperImpl implements ProjectMapper {
                 .type(project.getType())
                 .key(project.getKey())
                 .isDeleted(project.getIsDeleted())
-                .boards(project.getBoards().stream().map(boardRequestMapper::toBoardDto).toList())
+                .boards(project.getBoards() != null
+                        ? project.getBoards().stream().map(boardRequestMapper::toBoardDto).toList()
+                        : null)
                 .build();
     }
 }

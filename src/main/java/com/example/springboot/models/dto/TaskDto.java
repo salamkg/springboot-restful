@@ -19,6 +19,7 @@ public class TaskDto {
     private TaskStatus status;
     private Integer position;
     private String priority;
+    private String key;
     private List<CommentDto> comments;
     private BoardColumnDTO boardColumnDTO;
     private MultipartFile files;
