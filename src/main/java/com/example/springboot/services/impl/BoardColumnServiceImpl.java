@@ -23,7 +23,7 @@ public class BoardColumnServiceImpl implements BoardColumnService {
     @Autowired
     private BoardRepository boardRepository;
     @Autowired
-    private ChangeLogRepository changeLogRepository;
+    private ActivityLogRepository activityLogRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired

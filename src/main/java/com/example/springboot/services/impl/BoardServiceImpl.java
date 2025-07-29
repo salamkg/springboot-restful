@@ -7,7 +7,7 @@ import com.example.springboot.models.dto.BoardColumnDTO;
 import com.example.springboot.models.entities.*;
 import com.example.springboot.models.enums.TaskStatus;
 import com.example.springboot.repositories.BoardRepository;
-import com.example.springboot.repositories.ChangeLogRepository;
+import com.example.springboot.repositories.ActivityLogRepository;
 import com.example.springboot.repositories.BoardColumnRepository;
 import com.example.springboot.repositories.UserRepository;
 import com.example.springboot.services.BoardService;
@@ -28,7 +28,7 @@ public class BoardServiceImpl implements BoardService {
     @Autowired
     private BoardColumnRepository boardColumnRepository;
     @Autowired
-    private ChangeLogRepository changeLogRepository;
+    private ActivityLogRepository activityLogRepository;
     @Autowired
     private BoardRequestMapper boardRequestMapper;
     @Autowired

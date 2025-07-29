@@ -1,7 +1,10 @@
 package com.example.springboot.controllers;
 
+import com.example.springboot.audit.ActivityLog;
 import com.example.springboot.models.dto.ProjectDto;
 import com.example.springboot.models.dto.ProjectRequestDto;
+import com.example.springboot.models.entities.EntityType;
+import com.example.springboot.models.enums.ActivityType;
 import com.example.springboot.services.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,6 +51,7 @@ public class ProjectController {
         return ResponseEntity.ok().body(projects);
     }
 
+    @ActivityLog(type = ActivityType.CREATE, entity = EntityType.PROJECT)
     @Operation(summary = "Создание проекта")
     @PostMapping("/create")
     public ResponseEntity<ProjectDto> createProject(@RequestBody ProjectRequestDto dto) {
@@ -69,6 +73,7 @@ public class ProjectController {
         return ResponseEntity.ok().body(projectDto);
     }
 
+    @ActivityLog(type = ActivityType.DELETE, entity = EntityType.PROJECT)
     @Operation(summary = "Удаление проекта")
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<?> deleteProject(@PathVariable Long id) {

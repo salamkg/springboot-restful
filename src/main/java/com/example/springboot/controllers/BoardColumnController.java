@@ -1,7 +1,10 @@
 package com.example.springboot.controllers;
 
+import com.example.springboot.audit.ActivityLog;
 import com.example.springboot.models.dto.BoardColumnDTO;
 import com.example.springboot.models.entities.BoardColumn;
+import com.example.springboot.models.entities.EntityType;
+import com.example.springboot.models.enums.ActivityType;
 import com.example.springboot.services.BoardColumnService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,6 +47,7 @@ public class BoardColumnController {
         return ResponseEntity.ok(newTaskList);
     }
 
+    @ActivityLog(type = ActivityType.DELETE, entity = EntityType.BOARD_COLUMN)
     @Operation(summary = "Удаление колонки")
     @DeleteMapping("/columns/{id}/remove")
     public void deleteTaskList(@PathVariable(name = "id") Long deleteId, @RequestParam Long newId) {

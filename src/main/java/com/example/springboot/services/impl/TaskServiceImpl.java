@@ -38,7 +38,7 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private UserService userService;
     @Autowired
-    private ChangeLogService changeLogService;
+    private ActivityLogService activityLogService;
     @Autowired
     private TelegramService telegramService;
     @Autowired

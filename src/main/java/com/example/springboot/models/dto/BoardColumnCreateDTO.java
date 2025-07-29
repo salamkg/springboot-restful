@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class BoardColumnCreateDTO {
+    private Long id;
     private String name;
     private String description;
     private Integer position;

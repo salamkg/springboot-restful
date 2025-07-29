@@ -5,9 +5,11 @@ import com.example.springboot.mappers.ProjectMapper;
 import com.example.springboot.mappers.UserRequestMapper;
 import com.example.springboot.models.dto.*;
 import com.example.springboot.models.entities.*;
+import com.example.springboot.models.enums.ActivityType;
 import com.example.springboot.models.enums.UserRole;
 import com.example.springboot.models.enums.UserStatus;
 import com.example.springboot.repositories.*;
+import com.example.springboot.services.ActivityLogService;
 import com.example.springboot.services.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -35,6 +37,8 @@ public class ProjectServiceImpl implements ProjectService {
     private BoardColumnRepository boardColumnRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ActivityLogService activityLogService;
 
 
     @Override

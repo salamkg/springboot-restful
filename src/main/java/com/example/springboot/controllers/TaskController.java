@@ -1,9 +1,11 @@
 package com.example.springboot.controllers;
 
-import com.example.springboot.models.dto.ChangeLogDto;
+import com.example.springboot.audit.ActivityLog;
 import com.example.springboot.models.dto.TaskDto;
+import com.example.springboot.models.entities.EntityType;
 import com.example.springboot.models.entities.Task;
-import com.example.springboot.services.ChangeLogService;
+import com.example.springboot.models.enums.ActivityType;
+import com.example.springboot.services.ActivityLogService;
 import com.example.springboot.services.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,7 +29,7 @@ public class TaskController {
     @Autowired
     private TaskService taskService;
     @Autowired
-    private ChangeLogService changeLogService;
+    private ActivityLogService activityLogService;
 
     @Operation(summary = "Просмотр всех задач доски")
     @GetMapping("{boardId}/tasks")
@@ -49,6 +51,7 @@ public class TaskController {
         return ResponseEntity.ok(taskDto);
     }
 
+    @ActivityLog(type = ActivityType.CREATE, entity = EntityType.TASK)
     @Operation(summary = "Создание задачи")
     @PostMapping(value = "/{boardId}/create", consumes = "multipart/form-data")
     public ResponseEntity<TaskDto> createTask(@PathVariable Long boardId,
@@ -105,12 +108,6 @@ public class TaskController {
         taskService.updateTaskAssignees(taskId, ids);
 
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping("/tasks/{taskId}/history")
-    public ResponseEntity<List<ChangeLogDto>> getTaskHistory(@PathVariable Long taskId, @RequestParam(name = "h", defaultValue = "all") String sort) {
-        List<ChangeLogDto> history = changeLogService.getTaskHistory(taskId, sort);
-        return ResponseEntity.ok(history);
     }
 
     @PutMapping("/tasks/{taskId}/to-subtask")
