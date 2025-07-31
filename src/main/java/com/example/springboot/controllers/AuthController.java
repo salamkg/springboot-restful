@@ -13,18 +13,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-public class UserController {
+public class AuthController {
 
     @Autowired
-    private final UserService userService;
+    private UserService userService;
     @Autowired
     private AuthenticationManager authManager;
     @Autowired
     private JwtUtil jwtUtil;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody User user) {
@@ -43,11 +39,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка на сервере");
         }
     }
-
-//    @GetMapping()
-//    public ResponseEntity<List<User>> getAllUsers() {
-//        return ResponseEntity.ok(userService.getAllUsers());
-//    }
 
     @GetMapping("/all")
     public String allUsers() {

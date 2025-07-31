@@ -52,7 +52,7 @@ public class ProjectController {
         return ResponseEntity.ok().body(projects);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ActivityLog(type = ActivityType.CREATE, entity = EntityType.PROJECT)
     @Operation(summary = "Создание проекта")
     @PostMapping("/create")

@@ -1,6 +1,7 @@
 package com.example.springboot.config;
 
 import com.example.springboot.services.UserDetailsService;
+import com.example.springboot.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -27,6 +28,8 @@ public class JwtFilter extends OncePerRequestFilter {
     private UserDetailsService userDetailsService;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private UserService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -38,7 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 String token = authHeader.substring(7);
                 String username = jwtUtil.extractUsername(token);
                 if (username != null) {
-                    var userDetails = userDetailsService.loadUserByUsername(username);
+                    var userDetails = userService.loadUserByUsername(username);
                     if (jwtUtil.validateToken(token)) {
                         var authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

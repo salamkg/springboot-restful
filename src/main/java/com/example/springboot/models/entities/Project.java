@@ -44,9 +44,9 @@ public class Project {
     private List<User> people = new ArrayList<>();
 
     // TODO менеджер проекта
-//    @ManyToOne
-//    @JoinColumn(name = "user_id")
-//    private User lead;
+    @ManyToOne
+    @JoinColumn(name = "lead_id")
+    private User lead;
 
     // TODO при удалении проект = TRUE и удаляется безвозвратно через x дней
     private Boolean isDeleted = Boolean.FALSE;

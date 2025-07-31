@@ -11,8 +11,11 @@ import com.example.springboot.models.enums.UserStatus;
 import com.example.springboot.repositories.*;
 import com.example.springboot.services.ActivityLogService;
 import com.example.springboot.services.ProjectService;
+import com.example.springboot.services.UserDetailsService;
+import com.example.springboot.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -39,6 +42,10 @@ public class ProjectServiceImpl implements ProjectService {
     private UserRepository userRepository;
     @Autowired
     private ActivityLogService activityLogService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserDetailsService userDetailsService;
 
 
     @Override
@@ -115,7 +122,11 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectDto create(ProjectRequestDto projectDto) {
+        String username = userService.getCurrentUser();
+        User lead = userService.findByUsername(username);
+
         Project project = projectMapper.toProject(projectDto);
+        project.setLead(lead);
         projectRepository.save(project);
 
         Board projectBoard = Board.builder()

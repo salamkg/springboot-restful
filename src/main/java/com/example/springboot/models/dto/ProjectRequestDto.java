@@ -18,6 +18,6 @@ public class ProjectRequestDto {
     private Boolean isAvailable = true;
 //    private List<BoardDto> boards;
 //    private List<UserDto> people;
-    private UserDto lead;
+//    private UserDto lead;
     private Boolean isDeleted;
 }

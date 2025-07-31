@@ -3,6 +3,7 @@ package com.example.springboot.mappers;
 import com.example.springboot.models.dto.BoardDto;
 import com.example.springboot.models.dto.ProjectDto;
 import com.example.springboot.models.dto.ProjectRequestDto;
+import com.example.springboot.models.dto.UserDto;
 import com.example.springboot.models.entities.Project;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +41,16 @@ public class ProjectMapperImpl implements ProjectMapper {
                 .boards(project.getBoards() != null
                         ? project.getBoards().stream().map(boardRequestMapper::toBoardDto).toList()
                         : null)
+                .lead(project.getLead() != null
+                        ?
+                        UserDto.builder()
+                                .id(project.getLead().getId())
+                                .username(project.getLead().getUsername())
+                                .firstName(project.getLead().getFirstName())
+                                .lastName(project.getLead().getLastName())
+                                .build()
+                        : null
+                )
                 .build();
     }
 }
