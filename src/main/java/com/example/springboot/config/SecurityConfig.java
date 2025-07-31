@@ -36,6 +36,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(
+                                "api/v1/projects/create",
+                                "api/v1/projects/{id}/edit",
+                                "/api/v1/projects/{id}/delete").hasAuthority("ADMIN")
                         .anyRequest().authenticated());
         http
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

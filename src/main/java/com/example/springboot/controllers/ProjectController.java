@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,6 +52,7 @@ public class ProjectController {
         return ResponseEntity.ok().body(projects);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @ActivityLog(type = ActivityType.CREATE, entity = EntityType.PROJECT)
     @Operation(summary = "Создание проекта")
     @PostMapping("/create")
@@ -66,6 +68,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Редактирование проекта")
     @PutMapping("/{id}/edit")
     public ResponseEntity<?> editProject(@PathVariable Long id, @RequestBody ProjectRequestDto projectDto) {
@@ -73,6 +76,7 @@ public class ProjectController {
         return ResponseEntity.ok().body(projectDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @ActivityLog(type = ActivityType.DELETE, entity = EntityType.PROJECT)
     @Operation(summary = "Удаление проекта")
     @DeleteMapping("/{id}/delete")
@@ -81,6 +85,7 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Добавить пользователей в проект")
     @PutMapping("/{id}/add-people")
     public ResponseEntity<?> addPeople(@PathVariable Long id, @RequestParam String email) {
