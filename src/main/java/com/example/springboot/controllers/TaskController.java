@@ -32,7 +32,7 @@ public class TaskController {
     private ActivityLogService activityLogService;
 
     @Operation(summary = "Просмотр всех задач доски")
-    @GetMapping("{boardId}/tasks")
+    @GetMapping("/{boardId}/tasks")
     public ResponseEntity<List<TaskDto>> getAllTasks(@PathVariable Long boardId, @RequestParam(required = false) String sort) throws IOException {
         List<TaskDto> allTasks = taskService.getAllTasks(boardId, sort);
         return ResponseEntity.ok(allTasks);

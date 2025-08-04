@@ -1,5 +1,6 @@
 package com.example.springboot.models.dto;
 
+import com.example.springboot.models.entities.Attachment;
 import com.example.springboot.models.enums.TaskStatus;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,5 +23,5 @@ public class TaskDto {
     private String key;
     private List<CommentDto> comments;
     private BoardColumnDTO boardColumnDTO;
-    private MultipartFile files;
+    private List<Attachment> files;
 }

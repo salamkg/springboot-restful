@@ -3,8 +3,10 @@ package com.example.springboot.services.impl;
 import com.example.springboot.mappers.ActivityLogMapper;
 import com.example.springboot.models.dto.ActivityLogDto;
 import com.example.springboot.models.entities.ActivityLog;
+import com.example.springboot.models.entities.EntityType;
 import com.example.springboot.models.entities.Task;
 import com.example.springboot.models.entities.User;
+import com.example.springboot.models.enums.ActivityType;
 import com.example.springboot.repositories.ActivityLogRepository;
 import com.example.springboot.repositories.UserRepository;
 import com.example.springboot.services.ActivityLogService;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class ActivityLogServiceImpl{
+public class ActivityLogServiceImpl implements ActivityLogService {
 
     @Autowired
     private UserRepository userRepository;
@@ -48,12 +50,23 @@ public class ActivityLogServiceImpl{
         }
     }
 
+    public void logActivity(Long userId, Long entityId,
+                            EntityType entityType, ActivityType activityType) {
+        ActivityLog log = new ActivityLog();
+        log.setUserId(userId);
+        log.setEntityId(entityId);
+        log.setEntityType(entityType);
+        log.setActivityType(activityType);
+        log.setChangedAt(new Date());
+        activityLogRepository.save(log);
+    }
 
-//    @Override
-//    public List<ActivityLogDto> getTaskHistory(Long taskId, String sort) {
-//        return activityLogRepository.findAllByTaskId(taskId)
-//                .stream()
-//                .map(ch -> activityLogMapper.toChangeLogDto(ch))
-//                .toList();
-//    }
+
+    @Override
+    public List<ActivityLogDto> getHistory(Long userId) {
+        return activityLogRepository.findAllByUserId(userId)
+                .stream()
+                .map(ch -> activityLogMapper.toDTO(ch))
+                .toList();
+    }
 }

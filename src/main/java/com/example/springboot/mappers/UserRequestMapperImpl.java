@@ -30,7 +30,11 @@ public class UserRequestMapperImpl implements UserRequestMapper {
 
         UserDto.UserDtoBuilder userDto = UserDto.builder();
         userDto.id(user.getId());
+        userDto.username(user.getUsername());
         userDto.firstName(user.getFirstName());
+        userDto.lastName(user.getLastName());
+        userDto.age(user.getAge());
+        userDto.avatar(user.getAvatar());
 
         return userDto.build();
     }

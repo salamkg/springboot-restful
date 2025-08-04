@@ -48,6 +48,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDto createTask(Long boardId, Long boardColumnId, String name, String description, String priority, List<Long> ids, List<MultipartFile> files) {
+        String username = userService.getCurrentUser();
+        User author = userService.findByUsername(username);
+
         Board board = boardRepository.findById(boardId).orElseThrow(EntityNotFoundException::new);
         BoardColumn boardColumn = boardColumnRepository.findById(boardColumnId)
                 .orElseThrow(() -> new RuntimeException("BoardColumn Not Found"));
@@ -66,6 +69,7 @@ public class TaskServiceImpl implements TaskService {
                 .priority(priority)
                 .board(board)
                 .boardColumn(boardColumn)
+                .author(author)
                 .build();
 
         if (ids != null && !ids.isEmpty()) {
@@ -99,7 +103,6 @@ public class TaskServiceImpl implements TaskService {
                 );
             }
         }
-//        changeLogService.saveChangeLog(newTask,null,"create");
 
         return taskRequestMapper.toTaskDto(newTask);
     }

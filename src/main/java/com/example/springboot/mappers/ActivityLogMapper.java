@@ -5,5 +5,5 @@ import com.example.springboot.models.entities.ActivityLog;
 
 public interface ActivityLogMapper {
 
-    ActivityLogDto toChangeLogDto(ActivityLog activityLog);
+    ActivityLogDto toDTO(ActivityLog activityLog);
 }

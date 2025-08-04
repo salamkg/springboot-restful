@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ActivityLogMapperImpl implements ActivityLogMapper {
     @Override
-    public ActivityLogDto toChangeLogDto(ActivityLog activityLog) {
+    public ActivityLogDto toDTO(ActivityLog activityLog) {
         return ActivityLogDto.builder()
                 .id(activityLog.getId())
                 .entityId(activityLog.getEntityId())

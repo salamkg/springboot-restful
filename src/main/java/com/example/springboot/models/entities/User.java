@@ -28,6 +28,7 @@ public class User {
     private String lastName;
     private LocalDate birthDate;
     private Integer age;
+    private String avatar;
 
     @Column(unique = true)
     @Email

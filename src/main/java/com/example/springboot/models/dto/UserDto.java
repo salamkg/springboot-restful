@@ -17,4 +17,5 @@ public class UserDto {
     private String lastName;
     private LocalDate birthDate;
     private Integer age;
+    private String avatar;
 }

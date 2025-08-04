@@ -1,14 +1,13 @@
 package com.example.springboot.services;
 
+import com.example.springboot.models.dto.UserDto;
 import com.example.springboot.models.entities.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface UserService {
-//    User createUser(User user);
-//    User updateUser(User user);
-//    void deleteUserById(Long id);
     List<User> getAllUsers();
     String getCurrentUser();
     UserDetails loadUserByUsername(String username);
@@ -18,4 +17,10 @@ public interface UserService {
     User getUserById(Long id);
 
     User findByUsername(String username);
+
+    UserDto getUserDetails();
+
+    Long getCurrentUserId();
+
+    UserDto addCoverImage(Long id, MultipartFile file);
 }
