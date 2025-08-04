@@ -122,7 +122,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         File destinationFile = new File(uploadDir + uniqueFilename);
-        System.out.println("Current working dir: " + destinationFile.getAbsolutePath());
 
         // 3. Store file
         try {
@@ -138,7 +137,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userAttachment.setUser(user);
         userAttachmentRepository.save(userAttachment);
 
-        user.setAvatar(userAttachment.getFilePath());
+        user.setAvatar(uploadDir + uniqueFilename);
         userRepository.save(user);
 
         return userRequestMapper.toUserDto(user);
