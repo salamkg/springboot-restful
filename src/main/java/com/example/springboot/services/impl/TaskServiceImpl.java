@@ -175,15 +175,27 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDto updateTaskStatus(Long taskId, String name) {
-        Task taskToUpdate = null;
-        if (taskId != null && name != null) {
-            BoardColumn boardColumn = boardColumnRepository.findBoardColumnByNameContainingIgnoreCase(name);
-            taskToUpdate = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task Not Found"));
-            taskToUpdate.setBoardColumn(boardColumn);
-            taskRepository.save(taskToUpdate);
+    public TaskDto updateTaskStatus(Long taskId, String newStatusName) {
+        if (taskId == null || newStatusName == null) {
+            throw new IllegalArgumentException("Task ID and status name must not be null");
         }
-        return taskRequestMapper.toTaskDto(taskToUpdate);
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
+        Board board = task.getBoard();
+        BoardColumn newBoardColumn = boardColumnRepository
+                .findByBoardAndNameIgnoreCase(board, newStatusName.trim())
+                .orElseThrow(() -> new EntityNotFoundException("Board Column Not Found"));
+
+        TaskStatus newStatus;
+        try {
+            newStatus = TaskStatus.valueOf(newStatusName.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid task status: " + newStatusName);
+        }
+        task.setBoardColumn(newBoardColumn);
+        task.setStatus(newStatus);
+        taskRepository.save(task);
+
+        return taskRequestMapper.toTaskDto(task);
     }
 
     @Override
@@ -230,7 +242,7 @@ public class TaskServiceImpl implements TaskService {
     public boolean canBeStarted(Task task) {
         List<Task> dependencies = task.getDependencies();
         for (Task dependency : dependencies) {
-            if (!dependency.getStatus().equals(TaskStatus.COMPLETED)) {
+            if (!dependency.getStatus().equals(TaskStatus.DONE)) {
                 return false;
             }
         }
@@ -243,13 +255,13 @@ public class TaskServiceImpl implements TaskService {
                 task.setStatus(TaskStatus.NEW);
                 break;
             case 2:
-                task.setStatus(TaskStatus.PENDING);
+                task.setStatus(TaskStatus.NEW);
                 break;
             case 3:
                 task.setStatus(TaskStatus.TESTING);
                 break;
             case 4:
-                task.setStatus(TaskStatus.COMPLETED);
+                task.setStatus(TaskStatus.DONE);
                 break;
             default:
                 task.setStatus(task.getStatus());

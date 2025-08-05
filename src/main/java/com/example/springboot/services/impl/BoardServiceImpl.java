@@ -153,13 +153,13 @@ public class BoardServiceImpl implements BoardService {
                 boardColumn.setName(String.valueOf(TaskStatus.NEW));
                 break;
             case 2:
-                boardColumn.setName(String.valueOf(TaskStatus.PENDING));
+                boardColumn.setName(String.valueOf(TaskStatus.NEW));
                 break;
             case 3:
                 boardColumn.setName(String.valueOf(TaskStatus.TESTING));
                 break;
             case 4:
-                boardColumn.setName(String.valueOf(TaskStatus.COMPLETED));
+                boardColumn.setName(String.valueOf(TaskStatus.DONE));
                 break;
             default:
                 boardColumn.setName(boardColumn.getName());
