@@ -16,7 +16,7 @@ import java.util.Map;
 @Component
 public class JwtUtil {
     private final Key key = Keys.hmacShaKeyFor("mySuperSecretKeyForJWT1234567890!".getBytes()); // минимум 256 бит
-    private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 час
+    private final long EXPIRATION_TIME = 10000 * 60 * 60; // 1 час
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
     private final UserRepository userRepository;
 

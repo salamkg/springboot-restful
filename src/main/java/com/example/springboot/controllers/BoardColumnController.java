@@ -3,7 +3,7 @@ package com.example.springboot.controllers;
 import com.example.springboot.audit.ActivityLog;
 import com.example.springboot.models.dto.BoardColumnDTO;
 import com.example.springboot.models.entities.BoardColumn;
-import com.example.springboot.models.entities.EntityType;
+import com.example.springboot.models.enums.EntityType;
 import com.example.springboot.models.enums.ActivityType;
 import com.example.springboot.services.BoardColumnService;
 import io.swagger.v3.oas.annotations.Operation;

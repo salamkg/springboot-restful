@@ -1,7 +1,7 @@
 package com.example.springboot.services;
 
 import com.example.springboot.models.dto.ActivityLogDto;
-import com.example.springboot.models.entities.EntityType;
+import com.example.springboot.models.enums.EntityType;
 import com.example.springboot.models.enums.ActivityType;
 
 import java.util.List;

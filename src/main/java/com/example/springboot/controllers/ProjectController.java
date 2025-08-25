@@ -3,7 +3,7 @@ package com.example.springboot.controllers;
 import com.example.springboot.audit.ActivityLog;
 import com.example.springboot.models.dto.ProjectDto;
 import com.example.springboot.models.dto.ProjectRequestDto;
-import com.example.springboot.models.entities.EntityType;
+import com.example.springboot.models.enums.EntityType;
 import com.example.springboot.models.enums.ActivityType;
 import com.example.springboot.services.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -85,7 +85,7 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Добавить пользователей в проект")
     @PutMapping("/{id}/add-people")
     public ResponseEntity<?> addPeople(@PathVariable Long id, @RequestParam String email) {

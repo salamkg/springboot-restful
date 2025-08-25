@@ -1,6 +1,7 @@
 package com.example.springboot.models.entities;
 
 import com.example.springboot.models.enums.ActivityType;
+import com.example.springboot.models.enums.EntityType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;

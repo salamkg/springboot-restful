@@ -33,11 +33,9 @@ public class TaskRequestMapperImpl implements TaskRequestMapper {
 
     @Override
     public TaskDto toTaskDto(Task task) {
-        if (task == null) {
-            return null;
-        }
+        if (task == null) return null;
 
-        BoardColumn boardColumn = boardColumnRepository.findById(task.getBoardColumn().getId()).orElseThrow(() -> new RuntimeException("TaskList Not Found"));
+        BoardColumn boardColumn = boardColumnRepository.findById(task.getBoardColumn().getId()).orElseThrow(() -> new RuntimeException("BoardColumn Not Found"));
 
         TaskDto.TaskDtoBuilder taskDto = TaskDto.builder();
         taskDto.id(task.getId());

@@ -153,24 +153,15 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
 
         // TODO можно реализовать отдельную сущность Invitation для полноценной механики приглашений
-        User user = userRepository.findByEmail(email).orElseGet(() -> {
-            User newUser = new User();
-            newUser.setEmail(email);
-            newUser.setStatus(UserStatus.INVITED);
-            newUser.setPassword("password");
-            newUser.setRole(UserRole.USER);
-            return userRepository.save(newUser);
-        });
+        User ur = userService.findByUsername(email);
+        if (ur != null) {
+            ur.setStatus(UserStatus.INVITED);
+            if (!project.getPeople().contains(ur)) {
+                project.getPeople().add(ur);
+                projectRepository.save(project);
 
-        if(!project.getPeople().contains(user)) {
-            project.getPeople().add(user);
-            project.setPeople(project.getPeople().subList(0, 2));
+                userRepository.save(ur);
+            }
         }
-        if(!user.getProjects().contains(project)) {
-            user.getProjects().add(project);
-        }
-
-        projectRepository.save(project);
-
     }
 }

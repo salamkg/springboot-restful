@@ -1,6 +1,6 @@
 package com.example.springboot.audit;
 
-import com.example.springboot.models.entities.EntityType;
+import com.example.springboot.models.enums.EntityType;
 import com.example.springboot.models.enums.ActivityType;
 
 import java.lang.annotation.ElementType;

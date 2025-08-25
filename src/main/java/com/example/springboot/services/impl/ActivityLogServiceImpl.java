@@ -3,7 +3,7 @@ package com.example.springboot.services.impl;
 import com.example.springboot.mappers.ActivityLogMapper;
 import com.example.springboot.models.dto.ActivityLogDto;
 import com.example.springboot.models.entities.ActivityLog;
-import com.example.springboot.models.entities.EntityType;
+import com.example.springboot.models.enums.EntityType;
 import com.example.springboot.models.entities.Task;
 import com.example.springboot.models.entities.User;
 import com.example.springboot.models.enums.ActivityType;

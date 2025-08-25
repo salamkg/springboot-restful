@@ -2,7 +2,7 @@ package com.example.springboot.controllers;
 
 import com.example.springboot.audit.ActivityLog;
 import com.example.springboot.models.dto.TaskDto;
-import com.example.springboot.models.entities.EntityType;
+import com.example.springboot.models.enums.EntityType;
 import com.example.springboot.models.entities.Task;
 import com.example.springboot.models.enums.ActivityType;
 import com.example.springboot.services.ActivityLogService;
@@ -23,7 +23,7 @@ import java.util.List;
 
 @Tag(name = "Задачи", description = "Задачи проекта")
 @RestController
-@RequestMapping("/api/v1/boards")
+@RequestMapping("/api/v1/projects/{projectKey}/boards/{boardId}/tasks")
 public class TaskController {
 
     @Autowired
@@ -32,9 +32,10 @@ public class TaskController {
     private ActivityLogService activityLogService;
 
     @Operation(summary = "Просмотр всех задач доски")
-    @GetMapping("/{boardId}/tasks")
-    public ResponseEntity<List<TaskDto>> getAllTasks(@PathVariable Long boardId, @RequestParam(required = false) String sort) throws IOException {
-        List<TaskDto> allTasks = taskService.getAllTasks(boardId, sort);
+    @GetMapping()
+    public ResponseEntity<List<TaskDto>> getAllTasks(@PathVariable String projectKey, @PathVariable Long boardId,
+                                                     @RequestParam(required = false) String sort) throws IOException {
+        List<TaskDto> allTasks = taskService.getAllTasks(projectKey, boardId, sort);
         return ResponseEntity.ok(allTasks);
     }
 
@@ -45,16 +46,20 @@ public class TaskController {
         return ResponseEntity.ok(allTasks);
     }
 
-    @GetMapping("/tasks/{id}")
-    public ResponseEntity<TaskDto> getTaskById(@PathVariable Long id) {
-        TaskDto taskDto = taskService.getTaskById(id);
+    @Operation(summary = "Просмотр задачи")
+    @GetMapping("/{key}")
+    public ResponseEntity<TaskDto> getTaskById(@PathVariable String projectKey,
+                                               @PathVariable Long boardId,
+                                               @PathVariable String key) {
+        TaskDto taskDto = taskService.getTaskByKey(key);
         return ResponseEntity.ok(taskDto);
     }
 
     @ActivityLog(type = ActivityType.CREATE, entity = EntityType.TASK)
     @Operation(summary = "Создание задачи")
-    @PostMapping(value = "/{boardId}/create", consumes = "multipart/form-data")
-    public ResponseEntity<TaskDto> createTask(@PathVariable Long boardId,
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<TaskDto> createTask(@PathVariable String projectKey,
+                                              @PathVariable Long boardId,
                                               @RequestParam Long boardColumnId,
                                               @RequestParam String name,
                                               @RequestParam(required = false) String description,
@@ -63,21 +68,37 @@ public class TaskController {
                                               @RequestParam(name = "file", required = false) List<MultipartFile> files
     ) {
 
-        TaskDto newTask = taskService.createTask(boardId, boardColumnId, name, description, priority, ids, files);
+        TaskDto newTask = taskService.createTask(projectKey, boardId, boardColumnId, name, description, priority, ids, files);
         return ResponseEntity.ok(newTask);
     }
 
     @Operation(summary = "Переименовать задачу")
     @PutMapping("/tasks/{taskId}/rename")
-    public ResponseEntity<TaskDto> renameTask(@PathVariable Long taskId, @RequestParam String newName) {
+    public ResponseEntity<TaskDto> renameTask(@PathVariable String projectKey,
+                                              @PathVariable Long boardId,
+                                              @PathVariable Long taskId, @RequestParam String newName) {
         TaskDto taskDto = taskService.renameTask(taskId, newName);
         return ResponseEntity.ok(taskDto);
     }
 
+    @Operation(summary = "Редактирование задачи")
     @PutMapping("/tasks/{taskId}/edit")
-    public ResponseEntity<TaskDto> updateTask(@PathVariable Long taskId, @RequestBody Task task) {
+    public ResponseEntity<TaskDto> updateTask(@PathVariable String projectKey,
+                                              @PathVariable Long boardId,
+                                              @PathVariable Long taskId, @RequestBody Task task) {
         TaskDto editedTask = taskService.editTask(taskId, task);
         return ResponseEntity.ok(editedTask);
+    }
+
+    @Operation(summary = "Связать задачу")
+    @PutMapping("/{taskId}/link")
+    public ResponseEntity<?> linkTask(@PathVariable String projectKey,
+                                      @PathVariable Long boardId,
+                                      @PathVariable Long taskId,
+                                      @RequestParam String linkType,
+                                      @RequestParam List<Long> taskIds) {
+        taskService.linkTask(taskId, linkType, taskIds);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/tasks/{id}/remove")
@@ -96,16 +117,21 @@ public class TaskController {
 
     @Operation(summary = "Изменить статус")
     @PutMapping("/taskStatus/{taskId}/change")
-    public ResponseEntity<TaskDto> updateTaskStatus(@PathVariable Long taskId,
+    public ResponseEntity<TaskDto> updateTaskStatus(@PathVariable String projectKey,
+                                                    @PathVariable Long boardId,
+                                                    @PathVariable Long taskId,
                                                     @RequestParam(name = "name") String name) {
         TaskDto taskDto = taskService.updateTaskStatus(taskId, name);
         return ResponseEntity.ok(taskDto);
     }
 
-    @PutMapping("/tasks/{taskId}/change-assignee")
-    public ResponseEntity<TaskDto> changeAssignee(@PathVariable Long taskId,
-                                                  @RequestParam(name = "ids", required = false) List<Long> ids) {
-        taskService.updateTaskAssignees(taskId, ids);
+    @Operation(summary = "Назначить задачу")
+    @PutMapping("/{taskId}/assign")
+    public ResponseEntity<TaskDto> assign(@PathVariable(required = false) String projectKey,
+                                          @PathVariable(required = false) Long boardId,
+                                          @PathVariable Long taskId,
+                                          @RequestParam(name = "ids", required = false) List<Long> ids) {
+        taskService.updateTaskAssignees(projectKey, boardId, taskId, ids);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

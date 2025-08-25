@@ -5,6 +5,7 @@ import com.example.springboot.models.entities.Board;
 import com.example.springboot.models.entities.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,6 +26,15 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("select count(t) from Task t where t.board.project.id = :projectId")
     Long countByProjectId(Long projectId);
+
+    Optional<Task> findTaskByKey(String key);
+
+    @Query("select t from Task t " +
+            "join fetch t.boardColumn bc " +
+            "join fetch bc.board b " +
+            "join fetch b.project p " +
+            "where p.key = :projectKey and b.id = :boardId")
+    List<Task> findTasksByProjectKeyAndBoardId(String projectKey, Long boardId);
 
     // Подсчет задач с определенным статусом по проекту IN_PROGRESS, PENDING
 

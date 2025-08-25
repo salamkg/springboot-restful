@@ -4,6 +4,7 @@ import com.example.springboot.audit.TelegramService;
 import com.example.springboot.mappers.TaskRequestMapper;
 import com.example.springboot.models.dto.TaskDto;
 import com.example.springboot.models.entities.*;
+import com.example.springboot.models.enums.TaskLinkType;
 import com.example.springboot.models.enums.TaskStatus;
 import com.example.springboot.repositories.*;
 import com.example.springboot.services.*;
@@ -47,7 +48,7 @@ public class TaskServiceImpl implements TaskService {
     private ProjectRepository projectRepository;
 
     @Override
-    public TaskDto createTask(Long boardId, Long boardColumnId, String name, String description, String priority, List<Long> ids, List<MultipartFile> files) {
+    public TaskDto createTask(String projectKey, Long boardId, Long boardColumnId, String name, String description, String priority, List<Long> ids, List<MultipartFile> files) {
         String username = userService.getCurrentUser();
         User author = userService.findByUsername(username);
 
@@ -143,14 +144,22 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
-    public void updateTaskAssignees(Long taskId, List<Long> assigneeIds) {
+    public void updateTaskAssignees(String projectKey, Long boardId, Long taskId, List<Long> assigneeIds) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
+        User currentUser = userService.findByUsername(userService.getCurrentUser());
+
         if (assigneeIds != null && !assigneeIds.isEmpty()) {
             List<User> assignees = userRepository.findAllById(assigneeIds)
                     .stream()
                     .distinct()
                     .collect(Collectors.toList());
             task.setAssignedUsers(assignees);
+        } else {
+            if (currentUser != null) {
+                List<User> list = new ArrayList<>();
+                list.add(currentUser);
+                task.setAssignedUsers(list);
+            }
         }
         taskRepository.save(task);
     }
@@ -172,6 +181,16 @@ public class TaskServiceImpl implements TaskService {
             taskRepository.save(task);
         }
         return taskRequestMapper.toTaskDto(task);
+    }
+
+    @Override
+    public void linkTask(Long taskId, String linkType, List<Long> taskIds) {
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
+        if (linkType != null && !linkType.isEmpty()) {
+            task.setDependencies(taskRepository.findAllById(taskIds));
+            task.setLinkType(TaskLinkType.IS_BLOCKED_BY);
+            taskRepository.save(task);
+        }
     }
 
     @Override
@@ -218,8 +237,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getAllTasks(Long boardId, String sort) throws IOException {
-        return taskRepository.findTasksByBoard_Id(boardId).stream()
+    public List<TaskDto> getAllTasks(String projectKey, Long boardId, String sort) throws IOException {
+        return taskRepository.findTasksByProjectKeyAndBoardId(projectKey, boardId).stream()
                 .map(task -> taskRequestMapper.toTaskDto(task))
                 .toList();
     }
@@ -231,11 +250,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDto getTaskById(Long id) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
-
-        Task taskWithComments = taskRepository.findByIdWithComments(id).orElseThrow(() -> new RuntimeException("Task not found"));
-        return taskRequestMapper.toTaskDto(taskWithComments);
+    public TaskDto getTaskByKey(String key) {
+        Task task = taskRepository.findTaskByKey(key).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
+        return taskRequestMapper.toTaskDto(task);
     }
 
     //TODO доделать

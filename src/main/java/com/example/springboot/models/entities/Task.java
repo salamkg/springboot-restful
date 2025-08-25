@@ -1,5 +1,6 @@
 package com.example.springboot.models.entities;
 
+import com.example.springboot.models.enums.TaskLinkType;
 import com.example.springboot.models.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,6 +37,9 @@ public class Task {
     private Date dueDate; // Дата завершения задачи
 
     private String key;
+
+    @Enumerated(value = EnumType.STRING)
+    private TaskLinkType linkType;
 
 //    @ManyToOne
 //    @JoinColumn(name = "user_id")
