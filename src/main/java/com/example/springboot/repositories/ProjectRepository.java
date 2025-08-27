@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
@@ -53,4 +54,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query("select p from Project p where p.isDeleted is null or p.isDeleted = false")
     List<Project> findAllNotDeleted();
+
+    @Query("select p from Project p where p.key = :projectKey")
+    Optional<Project> findByProjectKey(String projectKey);
 }

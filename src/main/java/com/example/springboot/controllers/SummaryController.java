@@ -1,10 +1,11 @@
 package com.example.springboot.controllers;
 
 import com.example.springboot.models.dto.ProjectDto;
+import com.example.springboot.models.dto.TaskDto;
 import com.example.springboot.services.ProjectService;
+import com.example.springboot.services.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,16 +17,21 @@ import java.util.List;
 public class SummaryController {
 
     private final ProjectService projectService;
+    private final TaskService taskService;
 
-    public SummaryController(ProjectService projectService) {
+    public SummaryController(ProjectService projectService, TaskService taskService) {
         this.projectService = projectService;
+        this.taskService = taskService;
     }
 
-    @Operation(summary = "Список проектов с фильтрацией")
+    @Operation(summary = "Все задачи")
     @GetMapping("/{projectKey}/summary")
-    public ResponseEntity<List<ProjectDto>> getProjects(@PathVariable String projectKey,
-                                                        @RequestParam(required = false) String filter) {
-        List<ProjectDto> list = projectService.getAllProjects();
-        return new ResponseEntity<>(list, HttpStatus.OK);
+    public ResponseEntity<?> getProjectTasks(@PathVariable String projectKey,
+                                             @RequestParam(required = false) String jql,
+                                             @RequestParam(required = false) String limit,
+                                             @RequestParam(required = false) String offset,
+                                             @RequestParam(required = false) String fields) {
+        List<TaskDto> list = taskService.getTasksSummary();
+        return ResponseEntity.ok(list);
     }
 }

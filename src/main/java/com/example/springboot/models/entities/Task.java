@@ -2,8 +2,11 @@ package com.example.springboot.models.entities;
 
 import com.example.springboot.models.enums.TaskLinkType;
 import com.example.springboot.models.enums.TaskStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -95,4 +98,12 @@ public class Task {
 
     @ManyToMany(mappedBy = "dependencies")
     private List<Task> dependentTasks = new ArrayList<>(); // Задачи, которые зависят от этой задачи
+
+    @CreationTimestamp
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    private Date createdAt;
+
+    @UpdateTimestamp
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    private Date updatedAt;
 }

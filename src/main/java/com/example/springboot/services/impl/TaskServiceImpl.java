@@ -8,6 +8,12 @@ import com.example.springboot.models.enums.TaskLinkType;
 import com.example.springboot.models.enums.TaskStatus;
 import com.example.springboot.repositories.*;
 import com.example.springboot.services.*;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -194,15 +202,37 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public void generateQr(String text, String filePath, int w, int h) {
+        try {
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            Map<EncodeHintType, Object> hints = new HashMap<>();
+            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+
+            BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, w, h, hints);
+
+            Path path = FileSystems.getDefault().getPath(filePath);
+            MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public List<TaskDto> getTasksSummary() {
+        List<Task> doneList = taskRepository.findAllDoneLast7Days();
+        List<Task> createdList = taskRepository.findAllCreatedLast7Days();
+        List<Task> updatedList = taskRepository.findAllUpdatedLast7Days();
+
+        return updatedList.stream().map(task -> taskRequestMapper.toTaskDto(task)).collect(Collectors.toList());
+    }
+
+    @Override
     public TaskDto updateTaskStatus(Long taskId, String newStatusName) {
         if (taskId == null || newStatusName == null) {
             throw new IllegalArgumentException("Task ID and status name must not be null");
         }
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task Not Found"));
-        Board board = task.getBoard();
-        BoardColumn newBoardColumn = boardColumnRepository
-                .findByBoardAndNameIgnoreCase(board, newStatusName.trim())
-                .orElseThrow(() -> new EntityNotFoundException("Board Column Not Found"));
 
         TaskStatus newStatus;
         try {
@@ -210,7 +240,6 @@ public class TaskServiceImpl implements TaskService {
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid task status: " + newStatusName);
         }
-        task.setBoardColumn(newBoardColumn);
         task.setStatus(newStatus);
         taskRepository.save(task);
 
@@ -244,9 +273,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Page<TaskDto> getAllTasksPage(String sort, Pageable pageable) {
-        Page<Task> tasks = taskRepository.findAll(pageable);
-        return tasks.map(task -> taskRequestMapper.toTaskDto(task));
+    public List<TaskDto> getAllProjectTasks(String projectKey, String jql, String limit, String offset, String fields) {
+        Project project = projectRepository.findByProjectKey(projectKey).orElseThrow(() -> new EntityNotFoundException("Project Not Found"));
+        List<Task> tasks = taskRepository.findAllByProject(project);
+        return tasks.stream().map(task -> taskRequestMapper.toTaskDto(task)).toList();
     }
 
     @Override

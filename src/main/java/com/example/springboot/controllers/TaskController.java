@@ -23,7 +23,7 @@ import java.util.List;
 
 @Tag(name = "Задачи", description = "Задачи проекта")
 @RestController
-@RequestMapping("/api/v1/projects/{projectKey}/boards/{boardId}/tasks")
+@RequestMapping("/api/v1/projects/{projectKey}")
 public class TaskController {
 
     @Autowired
@@ -32,22 +32,26 @@ public class TaskController {
     private ActivityLogService activityLogService;
 
     @Operation(summary = "Просмотр всех задач доски")
-    @GetMapping()
+    @GetMapping("/boards/{boardId}/tasks")
     public ResponseEntity<List<TaskDto>> getAllTasks(@PathVariable String projectKey, @PathVariable Long boardId,
                                                      @RequestParam(required = false) String sort) throws IOException {
         List<TaskDto> allTasks = taskService.getAllTasks(projectKey, boardId, sort);
         return ResponseEntity.ok(allTasks);
     }
 
-    //TODO Pageable testing to be continued...
-    @GetMapping("/all-tasks")
-    public ResponseEntity<Page<TaskDto>> getAllTasksPage(@RequestParam String sort, Pageable pageable) {
-        Page<TaskDto> allTasks = taskService.getAllTasksPage(sort, pageable);
-        return ResponseEntity.ok(allTasks);
+    @Operation(summary = "Все задачи")
+    @GetMapping("/issues")
+    public ResponseEntity<?> getProjectTasks(@PathVariable String projectKey,
+                                             @RequestParam(required = false) String jql,
+                                             @RequestParam(required = false) String limit,
+                                             @RequestParam(required = false) String offset,
+                                             @RequestParam(required = false) String fields) {
+        List<TaskDto> list = taskService.getAllProjectTasks(projectKey, jql, limit, offset, fields);
+        return ResponseEntity.ok(list);
     }
 
     @Operation(summary = "Просмотр задачи")
-    @GetMapping("/{key}")
+    @GetMapping("/boards/{boardId}/tasks/{key}")
     public ResponseEntity<TaskDto> getTaskById(@PathVariable String projectKey,
                                                @PathVariable Long boardId,
                                                @PathVariable String key) {
@@ -57,7 +61,7 @@ public class TaskController {
 
     @ActivityLog(type = ActivityType.CREATE, entity = EntityType.TASK)
     @Operation(summary = "Создание задачи")
-    @PostMapping(consumes = "multipart/form-data")
+    @PostMapping(name = "/boards/{boardId}/tasks", consumes = "multipart/form-data")
     public ResponseEntity<TaskDto> createTask(@PathVariable String projectKey,
                                               @PathVariable Long boardId,
                                               @RequestParam Long boardColumnId,
@@ -73,7 +77,7 @@ public class TaskController {
     }
 
     @Operation(summary = "Переименовать задачу")
-    @PutMapping("/tasks/{taskId}/rename")
+    @PutMapping("/boards/{boardId}/tasks/{taskId}/rename")
     public ResponseEntity<TaskDto> renameTask(@PathVariable String projectKey,
                                               @PathVariable Long boardId,
                                               @PathVariable Long taskId, @RequestParam String newName) {
@@ -82,7 +86,7 @@ public class TaskController {
     }
 
     @Operation(summary = "Редактирование задачи")
-    @PutMapping("/tasks/{taskId}/edit")
+    @PutMapping("/boards/{boardId}/tasks/{taskId}/edit")
     public ResponseEntity<TaskDto> updateTask(@PathVariable String projectKey,
                                               @PathVariable Long boardId,
                                               @PathVariable Long taskId, @RequestBody Task task) {
@@ -91,7 +95,7 @@ public class TaskController {
     }
 
     @Operation(summary = "Связать задачу")
-    @PutMapping("/{taskId}/link")
+    @PutMapping("/boards/{boardId}/{taskId}/link")
     public ResponseEntity<?> linkTask(@PathVariable String projectKey,
                                       @PathVariable Long boardId,
                                       @PathVariable Long taskId,
@@ -116,7 +120,7 @@ public class TaskController {
     }
 
     @Operation(summary = "Изменить статус")
-    @PutMapping("/taskStatus/{taskId}/change")
+    @PutMapping("/boards/{boardId}/tasks/{taskId}/status")
     public ResponseEntity<TaskDto> updateTaskStatus(@PathVariable String projectKey,
                                                     @PathVariable Long boardId,
                                                     @PathVariable Long taskId,
@@ -126,7 +130,7 @@ public class TaskController {
     }
 
     @Operation(summary = "Назначить задачу")
-    @PutMapping("/{taskId}/assign")
+    @PutMapping("/boards/{boardId}/{taskId}/assign")
     public ResponseEntity<TaskDto> assign(@PathVariable(required = false) String projectKey,
                                           @PathVariable(required = false) Long boardId,
                                           @PathVariable Long taskId,
@@ -140,6 +144,12 @@ public class TaskController {
     public ResponseEntity<TaskDto> changeTaskToSubtask(@PathVariable Long taskId, @RequestParam(name = "parent") Long parentTaskId) {
         TaskDto subTask = taskService.changeTaskToSubTask(taskId, parentTaskId);
         return ResponseEntity.ok(subTask);
+    }
+
+    @PostMapping("/qr")
+    public ResponseEntity<?> generateQRCode(@RequestParam String text, @RequestParam String filePath, int width, int height) {
+        taskService.generateQr(text, filePath, width, height);
+        return ResponseEntity.ok().build();
     }
 
 }

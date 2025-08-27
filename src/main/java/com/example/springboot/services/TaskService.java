@@ -18,13 +18,13 @@ public interface TaskService {
     void deleteTaskById(Long id);
     void deleteTasksById(List<Long> id);
     List<TaskDto> getAllTasks(String projectKey, Long boardId, String sort) throws IOException;
-    Page<TaskDto> getAllTasksPage(String sort, Pageable pageable);
+    List<TaskDto> getAllProjectTasks(String projectKey, String jql, String limit, String offset, String fields);
     TaskDto getTaskByKey(String key);
     TaskDto updateTaskStatus(Long taskId, String name);
     void updateTaskAssignees(String projectKey, Long boardId, Long taskId, List<Long> assigneeIds);
     TaskDto changeTaskToSubTask(Long taskId, Long parentTaskId);
-
     TaskDto renameTask(Long taskId, String newName);
-
     void linkTask(Long taskId, String linkType, List<Long> taskIds);
+    void generateQr(String text, String filePath, int w, int h);
+    List<TaskDto> getTasksSummary();
 }
