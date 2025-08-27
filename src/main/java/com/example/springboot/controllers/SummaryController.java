@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "Сводная информация")
 @RestController
@@ -24,14 +25,11 @@ public class SummaryController {
         this.taskService = taskService;
     }
 
-    @Operation(summary = "Все задачи")
+    @Operation(summary = "Сводка")
     @GetMapping("/{projectKey}/summary")
     public ResponseEntity<?> getProjectTasks(@PathVariable String projectKey,
-                                             @RequestParam(required = false) String jql,
-                                             @RequestParam(required = false) String limit,
-                                             @RequestParam(required = false) String offset,
-                                             @RequestParam(required = false) String fields) {
-        List<TaskDto> list = taskService.getTasksSummary();
+                                             @RequestParam(required = false) String filter) {
+        Map<String, List<TaskDto>> list = taskService.getTasksSummary(filter);
         return ResponseEntity.ok(list);
     }
 }

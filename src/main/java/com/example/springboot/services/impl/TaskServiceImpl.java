@@ -7,6 +7,7 @@ import com.example.springboot.models.entities.*;
 import com.example.springboot.models.enums.TaskLinkType;
 import com.example.springboot.models.enums.TaskStatus;
 import com.example.springboot.repositories.*;
+import com.example.springboot.repositories.specs.TaskSpecs;
 import com.example.springboot.services.*;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -18,6 +19,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -219,12 +221,40 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getTasksSummary() {
-        List<Task> doneList = taskRepository.findAllDoneLast7Days();
-        List<Task> createdList = taskRepository.findAllCreatedLast7Days();
-        List<Task> updatedList = taskRepository.findAllUpdatedLast7Days();
+    public Map<String, List<TaskDto>> getTasksSummary(String filter) {
+        String currentUser = userService.getCurrentUser();
 
-        return updatedList.stream().map(task -> taskRequestMapper.toTaskDto(task)).collect(Collectors.toList());
+        Specification<Task> baseFilter = buildFilter(filter, currentUser);
+
+        List<Task> doneList = taskRepository.findAll(TaskSpecs.doneLast7Days().and(baseFilter));
+        List<Task> createdList = taskRepository.findAll(TaskSpecs.createdLast7Days().and(baseFilter));
+        List<Task> updatedList = taskRepository.findAll(TaskSpecs.updatedLast7Days().and(baseFilter));
+        List<Task> toDoList = taskRepository.findAll(TaskSpecs.toDoLast7Days().and(baseFilter));
+        Map<String, List<TaskDto>> allTasks = new HashMap<>();
+        allTasks.put("doneList", doneList.stream().map(taskRequestMapper::toTaskDto).toList());
+        allTasks.put("createdList", createdList.stream().map(taskRequestMapper::toTaskDto).toList());
+        allTasks.put("updatedList", updatedList.stream().map(taskRequestMapper::toTaskDto).toList());
+        allTasks.put("toDoList", toDoList.stream().map(taskRequestMapper::toTaskDto).toList());
+
+        return allTasks;
+    }
+
+    private Specification<Task> buildFilter(String filter, String currentUser) {
+        if (filter == null || filter.isEmpty()) {
+            return Specification.where(null);
+        }
+
+        if (filter.contains("author = currentUser()")) {
+            return TaskSpecs.hasAssignee(currentUser);
+        }
+
+        //TODO add all filters remove project =
+        if (filter.contains("project =")) {
+            String projectKey = filter.split("=")[1].trim().replace("\"", "");
+            return TaskSpecs.hasProject(projectKey);
+        }
+
+        return Specification.where(null);
     }
 
     @Override

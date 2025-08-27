@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface TaskService {
@@ -26,5 +27,5 @@ public interface TaskService {
     TaskDto renameTask(Long taskId, String newName);
     void linkTask(Long taskId, String linkType, List<Long> taskIds);
     void generateQr(String text, String filePath, int w, int h);
-    List<TaskDto> getTasksSummary();
+    Map<String, List<TaskDto>> getTasksSummary(String filter);
 }

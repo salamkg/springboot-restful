@@ -5,6 +5,7 @@ import com.example.springboot.models.entities.Board;
 import com.example.springboot.models.entities.Project;
 import com.example.springboot.models.entities.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificationExecutor<Task> {
     List<Task> findAllByBoardColumn_Id(Long taskListId);
 
     Task findTaskByBoardColumn_Id(Long taskListId);
@@ -48,6 +49,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query(value = "select * from tasks t where t.updated_at >= now() - interval '7 days'", nativeQuery = true)
     List<Task> findAllUpdatedLast7Days();
+
+    @Query(value = "select * from tasks t where t.due_date >= now() - interval '7 days'", nativeQuery = true)
+    List<Task> findAllToDoLast7Days();
 
     // Подсчет задач с определенным статусом по проекту IN_PROGRESS, PENDING
 
