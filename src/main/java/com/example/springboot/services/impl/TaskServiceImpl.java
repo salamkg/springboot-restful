@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,7 +90,7 @@ public class TaskServiceImpl implements TaskService {
                     .stream()
                     .map(user -> userRepository.findById(user.getId()).orElseThrow(() -> new EntityNotFoundException("User Not Found")))
                     .toList();
-            newTask.setAssignedUsers(assignees);
+            newTask.setAssignee(assignees);
         }
 
         if (files != null && !files.isEmpty()) {
@@ -105,8 +107,8 @@ public class TaskServiceImpl implements TaskService {
         }
         taskRepository.save(newTask);
         //TODO notification to be continued...
-        if (newTask.getAssignedUsers() != null) {
-            for (User user : newTask.getAssignedUsers()) {
+        if (newTask.getAssignee() != null) {
+            for (User user : newTask.getAssignee()) {
                 notificationService.sendNotification(
                         user,
                         "New task assigned: " + newTask.getName(),
@@ -163,12 +165,12 @@ public class TaskServiceImpl implements TaskService {
                     .stream()
                     .distinct()
                     .collect(Collectors.toList());
-            task.setAssignedUsers(assignees);
+            task.setAssignee(assignees);
         } else {
             if (currentUser != null) {
                 List<User> list = new ArrayList<>();
                 list.add(currentUser);
-                task.setAssignedUsers(list);
+                task.setAssignee(list);
             }
         }
         taskRepository.save(task);
@@ -220,11 +222,13 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
+    // TODO Доделать фильтрацию
     @Override
     public Map<String, List<TaskDto>> getTasksSummary(String filter) {
         String currentUser = userService.getCurrentUser();
+        Long currentUserId = userService.getCurrentUserId();
 
-        Specification<Task> baseFilter = buildFilter(filter, currentUser);
+        Specification<Task> baseFilter = buildFilter(filter, currentUserId);
 
         List<Task> doneList = taskRepository.findAll(TaskSpecs.doneLast7Days().and(baseFilter));
         List<Task> createdList = taskRepository.findAll(TaskSpecs.createdLast7Days().and(baseFilter));
@@ -239,22 +243,36 @@ public class TaskServiceImpl implements TaskService {
         return allTasks;
     }
 
-    private Specification<Task> buildFilter(String filter, String currentUser) {
+    private Specification<Task> buildFilter(String filter, Long currentUserId) {
         if (filter == null || filter.isEmpty()) {
             return Specification.where(null);
         }
 
-        if (filter.contains("author = currentUser()")) {
-            return TaskSpecs.hasAssignee(currentUser);
+        Specification<Task> spec = Specification.where(null);
+
+        // assignee
+        Pattern assigneePattern = Pattern.compile("assignee\\s*=\\s*([^\\s]+)");
+        Matcher matcher = assigneePattern.matcher(filter);
+        if (matcher.find()) {
+            String value = matcher.group(1).trim();
+            if ("currentUser()".equalsIgnoreCase(value)) {
+                spec = spec.and(TaskSpecs.hasAssignee(currentUserId));
+            } else if ("empty".equalsIgnoreCase(value)) {
+                spec = spec.and(TaskSpecs.hasNoAssignee());
+            } else {
+                spec = spec.and(TaskSpecs.hasAssignee(Long.valueOf(value)));
+            }
         }
 
-        //TODO add all filters remove project =
-        if (filter.contains("project =")) {
-            String projectKey = filter.split("=")[1].trim().replace("\"", "");
-            return TaskSpecs.hasProject(projectKey);
+        // project
+        Pattern projectPattern = Pattern.compile("project\\s*=\\s*\"?([^\"]+)\"?");
+        Matcher projectMatcher = projectPattern.matcher(filter);
+        if (projectMatcher.find()) {
+            String projectKey = projectMatcher.group(1).trim();
+            spec = spec.and(TaskSpecs.hasProject(projectKey));
         }
 
-        return Specification.where(null);
+        return spec;
     }
 
     @Override

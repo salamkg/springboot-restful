@@ -30,9 +30,14 @@ public class TaskSpecs {
                 cb.greaterThanOrEqualTo(root.get("dueDate"), LocalDateTime.now().minusDays(7));
     }
 
-    public static Specification<Task> hasAssignee(String username) {
+    public static Specification<Task> hasAssignee(Long userId) {
         return (root, query, cb) ->
-                cb.equal(root.get("author").get("username"), username);
+                cb.equal(root.get("assignee").get("id"), userId);
+    }
+
+    public static Specification<Task> hasNoAssignee() {
+        return (root, query, cb) ->
+                cb.isNull(root.get("assignee"));
     }
 
     public static Specification<Task> hasProject(String projectKey) {

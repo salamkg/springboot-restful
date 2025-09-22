@@ -61,7 +61,7 @@ public class TaskController {
 
     @ActivityLog(type = ActivityType.CREATE, entity = EntityType.TASK)
     @Operation(summary = "Создание задачи")
-    @PostMapping(name = "/boards/{boardId}/tasks", consumes = "multipart/form-data")
+    @PostMapping(value = "/boards/{boardId}/tasks", consumes = "multipart/form-data")
     public ResponseEntity<TaskDto> createTask(@PathVariable String projectKey,
                                               @PathVariable Long boardId,
                                               @RequestParam Long boardColumnId,

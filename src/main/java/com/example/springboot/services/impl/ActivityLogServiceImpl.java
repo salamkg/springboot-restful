@@ -41,7 +41,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
             changes.put("description", Map.of("old", oldTask != null ? oldTask.getDescription() : "","new", newTask.getDescription()));
             changes.put("status", Map.of("old", oldTask != null ? oldTask.getStatus().toString() : "","new", newTask.getStatus().toString()));
             changes.put("priority", Map.of("old", oldTask != null ? oldTask.getPriority() : "","new", newTask.getPriority()));
-            changes.put("assignees", Map.of("old", oldTask != null ? oldTask.getAssignedUsers().stream().map(User::getUsername).toString() : "","new", newTask.getAssignedUsers().stream().map(User::getUsername).toString()));
+            changes.put("assignees", Map.of("old", oldTask != null ? oldTask.getAssignee().stream().map(User::getUsername).toString() : "","new", newTask.getAssignee().stream().map(User::getUsername).toString()));
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.writeValueAsString(changes);
         }

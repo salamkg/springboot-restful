@@ -65,7 +65,7 @@ public class Task {
 
     @ManyToMany()
     @JoinTable(name = "task_users", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> assignedUsers = new ArrayList<>();
+    private List<User> assignee = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "author_id")
